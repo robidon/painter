@@ -44,11 +44,58 @@ viewport
     .drag()
     .wheel()
     .pinch()
-    .decelerate()
-    .bounce();
+    .bounce()
+    .decelerate()    
+    .clampZoom({
+    	minWidth:100,
+    	maxWidth:1000
+    })
+    .fit()
+    .on('pinch-end', updateView)
+    .on('wheel', updateView);
+
+function updateView() {
+	if (viewport.transform.scale._x>1) {
+		//sprite.tint = sprite.
+		gr.visible = false;
+		grZoomed.visible = true;
+	} else {
+		gr.visible = true;
+		grZoomed.visible = false;
+	}
+}
+
+var map = [];
+var colors = [];
+var mapWidth = mapHeight = 100;
+var colorsCount = 10;
+var rectSize = 10;
+for (var y=0;y<mapHeight;y++) {
+	map.push([]);
+	for (var x=0;x<mapWidth;x++) {
+		map[y].push(Math.round(Math.random()*colorsCount));
+	}
+}
+for (var i=0;i<colorsCount;i++) {
+	colors.push(((1<<24)*Math.random()|0));
+}
+var gr = new PIXI.Graphics();
+var grZoomed = new PIXI.Graphics();
+for (var y=0;y<mapHeight;y++) {
+	for (var x=0;x<mapWidth;x++) {
+		grZoomed.lineStyle(1, colors[map[y][x]], 1);
+		grZoomed.drawRect(x*rectSize,y*rectSize,rectSize-1,rectSize-1);
+		gr.beginFill(colors[map[y][x]]);
+		gr.drawRect(x*rectSize,y*rectSize,rectSize,rectSize);
+		gr.endFill();
+	}
+}
+grZoomed.visible = false;
+viewport.addChild(gr);
+viewport.addChild(grZoomed);
 
 // add a red box
 var sprite = viewport.addChild(new PIXI.Sprite(PIXI.Texture.WHITE));
 sprite.tint = 0xff0000;
-sprite.width = sprite.height = 100
-sprite.position.set(100, 100);
+sprite.width = sprite.height = 50
+sprite.position.set(50, 50);
