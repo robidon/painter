@@ -1,15 +1,19 @@
 <html>
 	<head>
+	    <meta name="viewport" content="width=device-width, user-scalable=no" />
 		<link rel="stylesheet" type="text/css" href="css.css">
 	</head>
 	<body>
 
-		<canvas id="canvas" class="disable-selection"></canvas>
+    	<script type="text/javascript" src="bundle.js"></script>
+	
+		<script type="text/javascript">
+		    if (typeof(Wrapper)!=="undefined") {
+		        Wrapper.sendEvent('page_loaded')
 
-		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
-    <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/4.7.3/pixi.min.js"></script>
+		    	Wrapper.showToast("You are in android");
+		    }
+		</script>
 
-    <script type="text/javascript" src="js.js"></script>
 	</body>
 </html>

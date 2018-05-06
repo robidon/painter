@@ -1,3 +1,5 @@
+game.methods.init();
+/*
 let type = "WebGL"
 if(!PIXI.utils.isWebGLSupported()){
   type = "canvas"
@@ -31,4 +33,4 @@ function setup() {
   
   //Add the cat to the stage
   app.stage.addChild(cat);
-}
+}*/
