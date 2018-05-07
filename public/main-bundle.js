@@ -51464,7 +51464,7 @@ let app = new PIXI.Application({
   }
 );
 
-app.renderer.backgroundColor = 0x061639;
+app.renderer.backgroundColor = 0xffffff;//0x061639;
 app.renderer.view.style.position = "absolute";
 app.renderer.view.style.display = "block";
 app.renderer.autoResize = true;
@@ -51489,13 +51489,13 @@ viewport
     .bounce()
     .decelerate()    
     .clampZoom({
-    	minWidth:100,
+    	minWidth:300,
     	maxWidth:1000
     })
     .fit();
 
 setInterval(function () {
-	if (viewport.transform.scale._x>1) {
+	if (viewport.transform.scale._x>0.5) {
 		//sprite.tint = sprite.
 		gr.visible = false;
 		grZoomed.visible = true;
@@ -51509,13 +51509,13 @@ setInterval(function () {
 var map = [];
 var colors = [];
 var grayColors = [];
-var mapWidth = mapHeight = 100;
+var mapWidth = mapHeight = 20;
 var colorsCount = 10;
-var rectSize = 10;
+var rectSize = 50;
 for (var y=0;y<mapHeight;y++) {
 	map.push([]);
 	for (var x=0;x<mapWidth;x++) {
-		map[y].push(Math.round(Math.random()*colorsCount));
+		map[y].push(Math.floor(Math.random()*colorsCount));
 	}
 }
 for (var i=0;i<colorsCount;i++) {
@@ -51528,8 +51528,12 @@ var gr = new PIXI.Graphics();
 var grZoomed = new PIXI.Graphics();
 for (var y=0;y<mapHeight;y++) {
 	for (var x=0;x<mapWidth;x++) {
-		grZoomed.lineStyle(1, grayColors[map[y][x]], 1);
+		grZoomed.lineStyle(0.5, grayColors[map[y][x]], 1);
 		grZoomed.drawRect(x*rectSize,y*rectSize,rectSize-1,rectSize-1);
+		let txt = new PIXI.Text(map[y][x]+1, {fontFamily : 'Arial', fontSize: 24, fill : grayColors[map[y][x]], align : 'center'});
+		txt.x = (x+0.5)*rectSize-txt.width/2;
+		txt.y = (y+0.5)*rectSize-txt.height/2;
+		grZoomed.addChild(txt);
 		gr.beginFill(grayColors[map[y][x]]);
 		gr.drawRect(x*rectSize,y*rectSize,rectSize,rectSize);
 		gr.endFill();
