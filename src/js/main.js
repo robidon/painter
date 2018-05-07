@@ -1,4 +1,5 @@
 var Viewport = require('pixi-viewport');
+var tinycolor = require("tinycolor2");
 
 let type = "WebGL"
 if(!PIXI.utils.isWebGLSupported()){
@@ -46,8 +47,6 @@ viewport
     	maxWidth:1000
     })
     .fit();
-    // .on('pinch-end', updateView)
-    // .on('wheel', updateView);
 
 setInterval(function () {
 	if (viewport.transform.scale._x>1) {
@@ -59,9 +58,11 @@ setInterval(function () {
 		grZoomed.visible = false;
 	}
 },100);
+// @todo clearInterval on destroy
 
 var map = [];
 var colors = [];
+var grayColors = [];
 var mapWidth = mapHeight = 100;
 var colorsCount = 10;
 var rectSize = 10;
@@ -72,15 +73,18 @@ for (var y=0;y<mapHeight;y++) {
 	}
 }
 for (var i=0;i<colorsCount;i++) {
-	colors.push(((1<<24)*Math.random()|0));
+	let randColor = tinycolor.random();
+	colors.push(PIXI.utils.rgb2hex([randColor._r/255, randColor._g/255, randColor._b/255]));
+	randColor = randColor.desaturate(100);
+	grayColors.push(PIXI.utils.rgb2hex([randColor._r/255, randColor._g/255, randColor._b/255]));
 }
 var gr = new PIXI.Graphics();
 var grZoomed = new PIXI.Graphics();
 for (var y=0;y<mapHeight;y++) {
 	for (var x=0;x<mapWidth;x++) {
-		grZoomed.lineStyle(1, colors[map[y][x]], 1);
+		grZoomed.lineStyle(1, grayColors[map[y][x]], 1);
 		grZoomed.drawRect(x*rectSize,y*rectSize,rectSize-1,rectSize-1);
-		gr.beginFill(colors[map[y][x]]);
+		gr.beginFill(grayColors[map[y][x]]);
 		gr.drawRect(x*rectSize,y*rectSize,rectSize,rectSize);
 		gr.endFill();
 	}
