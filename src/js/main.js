@@ -1,9 +1,4 @@
-var $ = require('jquery');
-var _ = require('underscore');
-var PIXI = require('pixi.js');
 var Viewport = require('pixi-viewport');
-
-
 
 let type = "WebGL"
 if(!PIXI.utils.isWebGLSupported()){
@@ -50,11 +45,11 @@ viewport
     	minWidth:100,
     	maxWidth:1000
     })
-    .fit()
-    .on('pinch-end', updateView)
-    .on('wheel', updateView);
+    .fit();
+    // .on('pinch-end', updateView)
+    // .on('wheel', updateView);
 
-function updateView() {
+setInterval(function () {
 	if (viewport.transform.scale._x>1) {
 		//sprite.tint = sprite.
 		gr.visible = false;
@@ -63,7 +58,7 @@ function updateView() {
 		gr.visible = true;
 		grZoomed.visible = false;
 	}
-}
+},100);
 
 var map = [];
 var colors = [];

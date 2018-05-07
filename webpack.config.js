@@ -1,9 +1,13 @@
 module.exports = {
   context: __dirname,
+  mode: "development",
   devtool: "source-map",
-  entry: "./src/js/main.js",
+  entry: {
+  	libs:"./src/js/libs.js",
+  	main:"./src/js/main.js",
+  },
   output: {
     path: __dirname + "/public",
-    filename: "bundle.js"
+    filename: "[name]-bundle.js"
   }
 }
