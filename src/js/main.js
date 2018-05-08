@@ -26,12 +26,23 @@ app.renderer.resize(window.innerWidth, window.innerHeight);
 
 document.body.appendChild(app.view);
 
+var map = [],
+	colors = [],
+	grayColors = [],
+	lightGrayColors = [],
+	darkGrayColors = [];
+
+var mapWidth = 30,
+	mapHeight = 50;
+var colorsCount = 10;
+var rectSize = 50;
+
 // create viewport
 var viewport = new Viewport({
     screenWidth: window.innerWidth,
     screenHeight: window.innerHeight,
-    worldWidth: 1000,
-    worldHeight: 1000
+    worldWidth: mapWidth*rectSize,
+    worldHeight: mapHeight*rectSize
 });
 
 app.stage.addChild(viewport);
@@ -44,7 +55,7 @@ viewport
     .decelerate()    
     .clampZoom({
     	minWidth:300,
-    	maxWidth:1000
+    	maxWidth:mapWidth*rectSize
     })
     .fit();
 
@@ -60,12 +71,6 @@ setInterval(function () {
 },100);
 // @todo clearInterval on destroy
 
-var map = [];
-var colors = [];
-var grayColors = [];
-var mapWidth = mapHeight = 20;
-var colorsCount = 10;
-var rectSize = 50;
 for (var y=0;y<mapHeight;y++) {
 	map.push([]);
 	for (var x=0;x<mapWidth;x++) {
@@ -77,14 +82,21 @@ for (var i=0;i<colorsCount;i++) {
 	colors.push(PIXI.utils.rgb2hex([randColor._r/255, randColor._g/255, randColor._b/255]));
 	randColor = randColor.desaturate(100);
 	grayColors.push(PIXI.utils.rgb2hex([randColor._r/255, randColor._g/255, randColor._b/255]));
+	randColor._b = 255-((1-randColor._b/255)*50);
+	randColor._r = randColor._g = randColor._b;
+	lightGrayColors.push(PIXI.utils.rgb2hex([randColor._r/255, randColor._g/255, randColor._b/255]));
+	randColor._b = randColor._b - 145;
+	randColor._r = randColor._g = randColor._b;
+	darkGrayColors.push(PIXI.utils.rgb2hex([randColor._r/255, randColor._g/255, randColor._b/255]));
 }
 var gr = new PIXI.Graphics();
 var grZoomed = new PIXI.Graphics();
 for (var y=0;y<mapHeight;y++) {
 	for (var x=0;x<mapWidth;x++) {
-		grZoomed.lineStyle(0.5, grayColors[map[y][x]], 1);
+		grZoomed.beginFill(lightGrayColors[map[y][x]]);
 		grZoomed.drawRect(x*rectSize,y*rectSize,rectSize-1,rectSize-1);
-		let txt = new PIXI.Text(map[y][x]+1, {fontFamily : 'Arial', fontSize: 24, fill : grayColors[map[y][x]], align : 'center'});
+		grZoomed.endFill();
+		let txt = new PIXI.Text(map[y][x]+1, {fontFamily : 'Arial', fontSize: 24, fill : darkGrayColors[map[y][x]], align : 'center'});
 		txt.x = (x+0.5)*rectSize-txt.width/2;
 		txt.y = (y+0.5)*rectSize-txt.height/2;
 		grZoomed.addChild(txt);
@@ -93,6 +105,9 @@ for (var y=0;y<mapHeight;y++) {
 		gr.endFill();
 	}
 }
+gr.cacheAsBitmap = true;
+grZoomed.cacheAsBitmap = true;
+
 grZoomed.visible = false;
 viewport.addChild(gr);
 viewport.addChild(grZoomed);
