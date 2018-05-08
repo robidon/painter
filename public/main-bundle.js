@@ -51472,14 +51472,14 @@ app.renderer.resize(window.innerWidth, window.innerHeight);
 
 document.body.appendChild(app.view);
 
-var map = [],
+var field = [],
 	colors = [],
 	grayColors = [],
 	lightGrayColors = [],
 	darkGrayColors = [];
 
-var mapWidth = 30,
-	mapHeight = 50;
+var fieldWidth = 30,
+	fieldHeight = 50;
 var colorsCount = 10;
 var rectSize = 50;
 
@@ -51487,8 +51487,8 @@ var rectSize = 50;
 var viewport = new Viewport({
     screenWidth: window.innerWidth,
     screenHeight: window.innerHeight,
-    worldWidth: mapWidth*rectSize,
-    worldHeight: mapHeight*rectSize
+    worldWidth: fieldWidth*rectSize,
+    worldHeight: fieldHeight*rectSize
 });
 
 app.stage.addChild(viewport);
@@ -51498,10 +51498,11 @@ viewport
     .wheel()
     .pinch()
     .bounce()
-    .decelerate()    
+    .decelerate()
+    .clamp({})    
     .clampZoom({
     	minWidth:300,
-    	maxWidth:mapWidth*rectSize
+    	maxWidth:fieldWidth*rectSize*1.5
     })
     .fit();
 
@@ -51517,17 +51518,17 @@ setInterval(function () {
 },100);
 // @todo clearInterval on destroy
 
-for (var y=0;y<mapHeight;y++) {
-	map.push([]);
-	for (var x=0;x<mapWidth;x++) {
-		map[y].push(Math.floor(Math.random()*colorsCount));
+for (var y=0;y<fieldHeight;y++) {
+	field.push([]);
+	for (var x=0;x<fieldWidth;x++) {
+		field[y].push(Math.floor(Math.random()*colorsCount));
 	}
 }
 for (var i=0;i<colorsCount;i++) {
 	let randColor = tinycolor.random();
 	colors.push(PIXI.utils.rgb2hex([randColor._r/255, randColor._g/255, randColor._b/255]));
 	randColor = randColor.desaturate(100);
-	grayColors.push(PIXI.utils.rgb2hex([randColor._r/255, randColor._g/255, randColor._b/255]));
+	grayColors.push(PIXI.utils.rgb2hex([randColor._r/255/2+0.5, randColor._g/255/2+0.5, randColor._b/255/2+0.5]));
 	randColor._b = 255-((1-randColor._b/255)*50);
 	randColor._r = randColor._g = randColor._b;
 	lightGrayColors.push(PIXI.utils.rgb2hex([randColor._r/255, randColor._g/255, randColor._b/255]));
@@ -51538,16 +51539,16 @@ for (var i=0;i<colorsCount;i++) {
 var gr = new PIXI.Graphics();
 var grZoomed = new PIXI.Graphics();
 var front = new PIXI.Graphics();
-for (var y=0;y<mapHeight;y++) {
-	for (var x=0;x<mapWidth;x++) {
-		grZoomed.beginFill(lightGrayColors[map[y][x]]);
+for (var y=0;y<fieldHeight;y++) {
+	for (var x=0;x<fieldWidth;x++) {
+		grZoomed.beginFill(lightGrayColors[field[y][x]]);
 		grZoomed.drawRect(x*rectSize,y*rectSize,rectSize-1,rectSize-1);
 		grZoomed.endFill();
-		let txt = new PIXI.Text(map[y][x]+1, {fontFamily : 'Arial', fontSize: 24, fill : darkGrayColors[map[y][x]], align : 'center'});
+		let txt = new PIXI.Text(field[y][x]+1, {fontFamily : 'Arial', fontSize: 24, fill : darkGrayColors[field[y][x]], align : 'center'});
 		txt.x = (x+0.5)*rectSize-txt.width/2;
 		txt.y = (y+0.5)*rectSize-txt.height/2;
 		grZoomed.addChild(txt);
-		gr.beginFill(grayColors[map[y][x]]);
+		gr.beginFill(grayColors[field[y][x]]);
 		gr.drawRect(x*rectSize,y*rectSize,rectSize,rectSize);
 		gr.endFill();
 	}
@@ -51564,9 +51565,11 @@ var tap = function (e) {
 	let point = e.data.getLocalPosition(viewport);
 	let x = Math.floor(point.x/rectSize);
 	let y = Math.floor(point.y/rectSize);
-	front.beginFill(colors[map[y][x]]);
-	front.drawRect(x*rectSize,y*rectSize,rectSize,rectSize);
-	front.endFill();
+	if (x >= 0 && x < fieldWidth && y >=0 && y < fieldHeight) {
+		front.beginFill(colors[field[y][x]]);
+		front.drawRect(x*rectSize,y*rectSize,rectSize,rectSize);
+		front.endFill();
+	}
 };
 
 viewport.on('tap', tap);
@@ -51577,6 +51580,7 @@ var sprite = viewport.addChild(new PIXI.Sprite(PIXI.Texture.WHITE));
 sprite.tint = 0xff0000;
 sprite.width = sprite.height = 50
 sprite.position.set(50, 50);
+
 
 /***/ }),
 
