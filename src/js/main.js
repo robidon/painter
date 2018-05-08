@@ -1,5 +1,6 @@
 var Viewport = require('pixi-viewport');
 var tinycolor = require("tinycolor2");
+import {TweenLite} from "gsap";
 
 let type = "WebGL"
 if(!PIXI.utils.isWebGLSupported()){
@@ -55,7 +56,7 @@ viewport
     .decelerate()
     .clamp({})    
     .clampZoom({
-    	minWidth:300,
+    	minWidth:400,
     	maxWidth:fieldWidth*rectSize*1.5
     })
     .fit();
@@ -98,7 +99,7 @@ for (var y=0;y<fieldHeight;y++) {
 		grZoomed.beginFill(lightGrayColors[field[y][x]]);
 		grZoomed.drawRect(x*rectSize,y*rectSize,rectSize-1,rectSize-1);
 		grZoomed.endFill();
-		let txt = new PIXI.Text(field[y][x]+1, {fontFamily : 'Arial', fontSize: 24, fill : darkGrayColors[field[y][x]], align : 'center'});
+		let txt = new PIXI.Text(field[y][x]+1, {fontFamily : 'Roboto', fontSize: 24, fill : darkGrayColors[field[y][x]], align : 'center'});
 		txt.x = (x+0.5)*rectSize-txt.width/2;
 		txt.y = (y+0.5)*rectSize-txt.height/2;
 		grZoomed.addChild(txt);
@@ -115,14 +116,38 @@ viewport.addChild(gr);
 viewport.addChild(grZoomed);
 viewport.addChild(front);
 
+var fillPixel = function(x,y) {
+	var endFill = function () {
+		front.beginFill(colors[field[y][x]]);
+		front.drawRect(x*rectSize,y*rectSize,rectSize,rectSize);
+		front.endFill();
+		viewport.removeChild(clip);
+	}
+	var clip = new PIXI.Graphics();
+	var mask = new PIXI.Graphics();
+	viewport.addChild(mask);
+	mask.isMask = true;
+	mask.beginFill(colors[field[y][x]]);
+	mask.drawRect(x*rectSize,y*rectSize,rectSize,rectSize);//(-0.5*rectSize,-0.5*rectSize,rectSize,rectSize);
+	mask.endFill();
+
+	clip.beginFill(colors[field[y][x]]);
+	clip.drawCircle( 0, 0, rectSize);
+	clip.endFill();
+	clip.x = (x+0.5) * rectSize;
+	clip.y = (y+0.5) * rectSize;
+	clip.scale = new PIXI.Point(0,0);
+	clip.mask = mask;
+	viewport.addChild(clip);
+	TweenLite.to(clip.scale, 0.7, {x:1,y:1,onComplete:endFill});
+}
+
 var tap = function (e) {
 	let point = e.data.getLocalPosition(viewport);
 	let x = Math.floor(point.x/rectSize);
 	let y = Math.floor(point.y/rectSize);
 	if (x >= 0 && x < fieldWidth && y >=0 && y < fieldHeight) {
-		front.beginFill(colors[field[y][x]]);
-		front.drawRect(x*rectSize,y*rectSize,rectSize,rectSize);
-		front.endFill();
+		fillPixel(x,y);
 	}
 };
 
