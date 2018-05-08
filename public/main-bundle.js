@@ -51537,6 +51537,7 @@ for (var i=0;i<colorsCount;i++) {
 }
 var gr = new PIXI.Graphics();
 var grZoomed = new PIXI.Graphics();
+var front = new PIXI.Graphics();
 for (var y=0;y<mapHeight;y++) {
 	for (var x=0;x<mapWidth;x++) {
 		grZoomed.beginFill(lightGrayColors[map[y][x]]);
@@ -51557,6 +51558,19 @@ grZoomed.cacheAsBitmap = true;
 grZoomed.visible = false;
 viewport.addChild(gr);
 viewport.addChild(grZoomed);
+viewport.addChild(front);
+
+var tap = function (e) {
+	let point = e.data.getLocalPosition(viewport);
+	let x = Math.floor(point.x/rectSize);
+	let y = Math.floor(point.y/rectSize);
+	front.beginFill(colors[map[y][x]]);
+	front.drawRect(x*rectSize,y*rectSize,rectSize,rectSize);
+	front.endFill();
+};
+
+viewport.on('tap', tap);
+viewport.on('click', tap);
 
 // add a red box
 var sprite = viewport.addChild(new PIXI.Sprite(PIXI.Texture.WHITE));
