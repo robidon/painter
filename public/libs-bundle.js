@@ -66,7 +66,7 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = "./src/js/libs.js");
+/******/ 	return __webpack_require__(__webpack_require__.s = "./src/Libs.js");
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -54917,10 +54917,10 @@ module.exports = function(module) {
 
 /***/ }),
 
-/***/ "./src/js/libs.js":
-/*!************************!*\
-  !*** ./src/js/libs.js ***!
-  \************************/
+/***/ "./src/Libs.js":
+/*!*********************!*\
+  !*** ./src/Libs.js ***!
+  \*********************/
 /*! no exports provided */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
