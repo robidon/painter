@@ -10,10 +10,11 @@ function initPalette() {
 	for (var i =0; i< paletteColorsCount;i++) {
 		let randColor = Tinycolor.random();
 		palette.push(randColor);
-	}
+	} 
 
 }
 initPalette();
+ 
 
 export function initGame() {
 	let type = "WebGL"

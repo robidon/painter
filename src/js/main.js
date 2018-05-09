@@ -1,3 +1,10 @@
 import {initGame} from "./game";
+import Vue from "vue";
+//initGame();
 
-initGame();
+var app = new Vue({
+	el: "#app",
+	data: {
+		message: 'Привет'
+	}
+});
