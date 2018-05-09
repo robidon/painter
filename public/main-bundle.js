@@ -59426,21 +59426,38 @@ module.exports = new Random()
 
 /***/ }),
 
-/***/ "./src/js/main.js":
+/***/ "./src/js/game.js":
 /*!************************!*\
-  !*** ./src/js/main.js ***!
+  !*** ./src/js/game.js ***!
   \************************/
-/*! no exports provided */
+/*! exports provided: initGame */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var gsap__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! gsap */ "./node_modules/gsap/TweenMax.js");
-/* harmony import */ var gsap__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(gsap__WEBPACK_IMPORTED_MODULE_0__);
-var Viewport = __webpack_require__(/*! pixi-viewport */ "./node_modules/pixi-viewport/dist/viewport.js");
-var tinycolor = __webpack_require__(/*! tinycolor2 */ "./node_modules/tinycolor2/tinycolor.js");
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "initGame", function() { return initGame; });
+/* harmony import */ var pixi_viewport__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! pixi-viewport */ "./node_modules/pixi-viewport/dist/viewport.js");
+/* harmony import */ var pixi_viewport__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(pixi_viewport__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var tinycolor2__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! tinycolor2 */ "./node_modules/tinycolor2/tinycolor.js");
+/* harmony import */ var tinycolor2__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(tinycolor2__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var gsap__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! gsap */ "./node_modules/gsap/TweenMax.js");
+/* harmony import */ var gsap__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(gsap__WEBPACK_IMPORTED_MODULE_2__);
 
 
+
+
+let palette = [],
+	paletteColorsCount = 10;
+
+function initPalette() {
+	
+	for (var i =0; i< paletteColorsCount;i++) {
+		let randColor = tinycolor2__WEBPACK_IMPORTED_MODULE_1___default.a.random();
+		palette.push(randColor);
+	}
+
+}
+initPalette();
 
 function initGame() {
 	let type = "WebGL"
@@ -59477,13 +59494,12 @@ function initGame() {
 
 	var coloredPixelsCount = 0,
 		pixelsToColorCount = 0,
-		fieldWidth = 5,
-		fieldHeight = 5;
-	var colorsCount = 10;
+		fieldWidth = 30,
+		fieldHeight = 40;
 	var rectSize = 50;
 
 	// create viewport
-	var viewport = new Viewport({
+	var viewport = new pixi_viewport__WEBPACK_IMPORTED_MODULE_0___default.a({
 	    screenWidth: window.innerWidth,
 	    screenHeight: window.innerHeight,
 	    worldWidth: fieldWidth*rectSize,
@@ -59525,7 +59541,7 @@ function initGame() {
 		field.push([]);
 		fieldColored.push([]);
 		for (var x=0;x<fieldWidth;x++) {
-			let color = Math.floor(Math.random()*colorsCount);
+			let color = Math.floor(Math.random()*palette.length);
 			field[y].push( (Math.random()>0.5) ? color : -1 );
 			fieldColored[y].push(0);
 		}
@@ -59533,19 +59549,25 @@ function initGame() {
 
 	// generate grayscale palettes
 
-	for (var i=0;i<colorsCount;i++) {
+	for (var i=0;i<palette.length;i++) {
+				
+		let r = palette[i]._r/255,
+			g = palette[i]._g/255,
+			b = palette[i]._b/255;
+	
+		colors.push(PIXI.utils.rgb2hex([r, g, b]));
 		
-		let randColor = tinycolor.random();
-		colors.push(PIXI.utils.rgb2hex([randColor._r/255, randColor._g/255, randColor._b/255]));
+		//desaturate 
+		r = (r+g+b)/3;
+		grayColors.push(PIXI.utils.rgb2hex([r/2+0.5, r/2+0.5, r/2+0.5]));
 		
-		randColor = randColor.desaturate(100);
-		grayColors.push(PIXI.utils.rgb2hex([randColor._r/255/2+0.5, randColor._g/255/2+0.5, randColor._b/255/2+0.5]));
-		randColor._b = 255-((1-randColor._b/255)*50);
-		randColor._r = randColor._g = randColor._b;
-		lightGrayColors.push(PIXI.utils.rgb2hex([randColor._r/255, randColor._g/255, randColor._b/255]));
-		randColor._b = randColor._b - 145;
-		randColor._r = randColor._g = randColor._b;
-		darkGrayColors.push(PIXI.utils.rgb2hex([randColor._r/255, randColor._g/255, randColor._b/255]));
+		//lighten
+		r = 1-((1-r)/5)
+		lightGrayColors.push(PIXI.utils.rgb2hex([r, r, r]));
+		
+		//darken
+		r = r - 0.5;
+		darkGrayColors.push(PIXI.utils.rgb2hex([r, r, r]));
 	}
 
 	// draw fields
@@ -59631,7 +59653,7 @@ function initGame() {
 		
 		viewport.addChild(clip);
 		
-		gsap__WEBPACK_IMPORTED_MODULE_0__["TweenLite"].to(clip.scale, 0.7, {x:1,y:1,onComplete:endFill});
+		gsap__WEBPACK_IMPORTED_MODULE_2__["TweenLite"].to(clip.scale, 0.7, {x:1,y:1,onComplete:endFill});
 	}
 
 	var tap = function (e) {
@@ -59649,7 +59671,21 @@ function initGame() {
 }
 
 
-initGame();
+/***/ }),
+
+/***/ "./src/js/main.js":
+/*!************************!*\
+  !*** ./src/js/main.js ***!
+  \************************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _game__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./game */ "./src/js/game.js");
+
+
+Object(_game__WEBPACK_IMPORTED_MODULE_0__["initGame"])();
 
 /***/ }),
 

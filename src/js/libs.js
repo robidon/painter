@@ -1,3 +1,4 @@
-var $ = require('jquery');
-var _ = require('underscore');
-var PIXI = require('pixi.js');
+import $ from 'jquery';
+import _ from 'underscore';
+import PIXI from 'pixi.js';
+import Vue from "vue";
