@@ -25,20 +25,18 @@ export default {
 		}
 	},
 	created: function () {
-		var paletteColorsCount = 5;
+		var paletteColorsCount = 2;
 		for (var i = 0; i < paletteColorsCount;i++) {
 			let randColor = Tinycolor.random();
 			this.palette.push(randColor);
 		}
   	},
   	mounted: function () {
-  		console.log(this.palette);
 		this.$refs.field.render();
   	},
   	methods: {
   		changeColor:function (newColorIndex) {
   			this.selectedColor = newColorIndex;
-  			console.log(newColorIndex); 
   		}
   	},
 	components: {

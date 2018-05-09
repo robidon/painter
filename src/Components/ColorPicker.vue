@@ -48,12 +48,6 @@ export default {
 			return this.$refs.mySwiper.swiper
 		}
     },
-	created: function () {
-		console.log(this.palette);
-	},
-	mounted: function () {
-      	//this.swiper.slideTo(3, 1000, false)
-	},
 	methods: {
 		toggleButton: function (index) {
 			this.$emit("setColor", index);

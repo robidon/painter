@@ -167,12 +167,44 @@ export default {
 			viewport.addChild(backgroundZoomed);
 			viewport.addChild(front);
 
-			var fillPixel = function(x,y) {
-
+			var lastColoredPixelX = -1,
+				lastColoredPixelY = -1,
+				lastColoredPixelTime = -1000;
+			var fillPixel = function(x, y, flood = false, floodColor = null) {
+				if (x<0||y<0||x>=fieldWidth||y>=fieldHeight) return;
 				if (field[y][x] === -1) return;
+				if (field[y][x] !== T.selectedColor) {
+					if (!flood) return;
+					if (field[y][x] !== floodColor) return;
+				}
+
+				if (!flood) {
+					var newColoredPixelTime = Date.now();
+					if ((newColoredPixelTime - lastColoredPixelTime < 300) && (lastColoredPixelX===x) && (lastColoredPixelY===y)) {
+						floodColor = T.selectedColor;
+						var floodTimeout = setTimeout(function () {
+							fillPixel(x-1, y, true, floodColor);
+							fillPixel(x, y-1, true, floodColor);
+							fillPixel(x+1, y, true, floodColor);
+							fillPixel(x, y+1, true, floodColor);
+						},100);
+					}
+					lastColoredPixelTime = newColoredPixelTime;
+					lastColoredPixelX = x;
+					lastColoredPixelY = y;
+				}
+
 				if (fieldColored[y][x] === 1) return;
 
-				if (field[y][x] !== T.selectedColor) return;
+				if (flood) {
+					var floodTimeout = setTimeout(function () {
+						fillPixel(x-1, y, true, floodColor);
+						fillPixel(x, y-1, true, floodColor);
+						fillPixel(x+1, y, true, floodColor);
+						fillPixel(x, y+1, true, floodColor);
+					},100);
+				}
+
 
 				fieldColored[y][x] = 1;
 				coloredPixelsCount ++;

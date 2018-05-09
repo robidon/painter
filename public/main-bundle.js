@@ -213,12 +213,6 @@ __webpack_require__.r(__webpack_exports__);
 			return this.$refs.mySwiper.swiper;
 		}
 	},
-	created: function () {
-		console.log(this.palette);
-	},
-	mounted: function () {
-		//this.swiper.slideTo(3, 1000, false)
-	},
 	methods: {
 		toggleButton: function (index) {
 			this.$emit("setColor", index);
@@ -414,12 +408,43 @@ __webpack_require__.r(__webpack_exports__);
 			viewport.addChild(backgroundZoomed);
 			viewport.addChild(front);
 
-			var fillPixel = function (x, y) {
-
+			var lastColoredPixelX = -1,
+			    lastColoredPixelY = -1,
+			    lastColoredPixelTime = -1000;
+			var fillPixel = function (x, y, flood = false, floodColor = null) {
+				if (x < 0 || y < 0 || x >= fieldWidth || y >= fieldHeight) return;
 				if (field[y][x] === -1) return;
+				if (field[y][x] !== T.selectedColor) {
+					if (!flood) return;
+					if (field[y][x] !== floodColor) return;
+				}
+
+				if (!flood) {
+					var newColoredPixelTime = Date.now();
+					if (newColoredPixelTime - lastColoredPixelTime < 300 && lastColoredPixelX === x && lastColoredPixelY === y) {
+						floodColor = T.selectedColor;
+						var floodTimeout = setTimeout(function () {
+							fillPixel(x - 1, y, true, floodColor);
+							fillPixel(x, y - 1, true, floodColor);
+							fillPixel(x + 1, y, true, floodColor);
+							fillPixel(x, y + 1, true, floodColor);
+						}, 100);
+					}
+					lastColoredPixelTime = newColoredPixelTime;
+					lastColoredPixelX = x;
+					lastColoredPixelY = y;
+				}
+
 				if (fieldColored[y][x] === 1) return;
 
-				if (field[y][x] !== T.selectedColor) return;
+				if (flood) {
+					var floodTimeout = setTimeout(function () {
+						fillPixel(x - 1, y, true, floodColor);
+						fillPixel(x, y - 1, true, floodColor);
+						fillPixel(x + 1, y, true, floodColor);
+						fillPixel(x, y + 1, true, floodColor);
+					}, 100);
+				}
 
 				fieldColored[y][x] = 1;
 				coloredPixelsCount++;
@@ -522,20 +547,18 @@ __webpack_require__.r(__webpack_exports__);
 		};
 	},
 	created: function () {
-		var paletteColorsCount = 5;
+		var paletteColorsCount = 2;
 		for (var i = 0; i < paletteColorsCount; i++) {
 			let randColor = tinycolor2__WEBPACK_IMPORTED_MODULE_0___default.a.random();
 			this.palette.push(randColor);
 		}
 	},
 	mounted: function () {
-		console.log(this.palette);
 		this.$refs.field.render();
 	},
 	methods: {
 		changeColor: function (newColorIndex) {
 			this.selectedColor = newColorIndex;
-			console.log(newColorIndex);
 		}
 	},
 	components: {
@@ -849,7 +872,7 @@ exports = module.exports = __webpack_require__(/*! ../../node_modules/css-loader
 
 
 // module
-exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
+exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
 
 // exports
 
