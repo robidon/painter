@@ -126,17 +126,24 @@ __webpack_require__.r(__webpack_exports__);
 		color: {
 			type: Object,
 			required: true
+		},
+		selected: {
+			type: Boolean,
+			default: false
 		}
 	},
 	computed: {
-		cssColor: function () {
+		cssBColor: function () {
 			return this.color.toHexString();
+		},
+		cssFColor: function () {
+			return this.color.clone().lighten(40).toHexString();
 		}
 	},
-	data: function () {
-		return {
-			greeting: 'Hello'
-		};
+	methods: {
+		toggle: function () {
+			this.$emit('toggle');
+		}
 	}
 });
 
@@ -176,6 +183,8 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
 
 
 
@@ -188,6 +197,10 @@ __webpack_require__.r(__webpack_exports__);
 			default: function () {
 				return [];
 			}
+		},
+		selectedColor: {
+			type: Number,
+			default: 0
 		}
 	},
 	data: function () {
@@ -206,10 +219,264 @@ __webpack_require__.r(__webpack_exports__);
 	mounted: function () {
 		//this.swiper.slideTo(3, 1000, false)
 	},
+	methods: {
+		toggleButton: function (index) {
+			this.$emit("setColor", index);
+		}
+	},
 	components: {
 		ColorButton: _ColorButton_vue__WEBPACK_IMPORTED_MODULE_2__["default"],
 		swiper: vue_awesome_swiper__WEBPACK_IMPORTED_MODULE_1__["swiper"],
 		swiperSlide: vue_awesome_swiper__WEBPACK_IMPORTED_MODULE_1__["swiperSlide"]
+	}
+});
+
+/***/ }),
+
+/***/ "./node_modules/babel-loader/lib/index.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/Field.vue?vue&type=script&lang=js":
+/*!********************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib!./node_modules/vue-loader/lib??vue-loader-options!./src/Components/Field.vue?vue&type=script&lang=js ***!
+  \********************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var pixi_viewport__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! pixi-viewport */ "./node_modules/pixi-viewport/dist/viewport.js");
+/* harmony import */ var pixi_viewport__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(pixi_viewport__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var tinycolor2__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! tinycolor2 */ "./node_modules/tinycolor2/tinycolor.js");
+/* harmony import */ var tinycolor2__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(tinycolor2__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var gsap__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! gsap */ "./node_modules/gsap/TweenMax.js");
+/* harmony import */ var gsap__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(gsap__WEBPACK_IMPORTED_MODULE_2__);
+//
+//
+//
+//
+//
+
+
+
+
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+	props: {
+		palette: {
+			type: Array,
+			default: function () {
+				return [];
+			}
+		},
+		selectedColor: {
+			type: Number,
+			default: 0
+		}
+	},
+	mounted: function () {},
+	methods: {
+		render: function () {
+			let T = this;
+			let type = "WebGL";
+			if (!PIXI.utils.isWebGLSupported()) {
+				type = "canvas";
+			}
+
+			let app = new PIXI.Application({
+				width: 256,
+				height: 256,
+				antialias: true,
+				transparent: false,
+				resolution: 1
+			});
+
+			app.renderer.backgroundColor = 0xffffff;
+			app.renderer.view.style.position = "absolute";
+			app.renderer.view.style.display = "block";
+			app.renderer.autoResize = true;
+			app.renderer.resize(window.innerWidth, window.innerHeight);
+
+			document.getElementById('field').appendChild(app.view);
+
+			var field = [],
+			    fieldColored = [],
+			    colors = [],
+			    grayColors = [],
+			    lightGrayColors = [],
+			    darkGrayColors = [];
+
+			var coloredPixelsCount = 0,
+			    pixelsToColorCount = 0,
+			    fieldWidth = 30,
+			    fieldHeight = 40;
+			var rectSize = 50;
+
+			// create viewport
+			var viewport = new pixi_viewport__WEBPACK_IMPORTED_MODULE_0___default.a({
+				screenWidth: window.innerWidth,
+				screenHeight: window.innerHeight,
+				worldWidth: fieldWidth * rectSize,
+				worldHeight: fieldHeight * rectSize
+			});
+
+			app.stage.addChild(viewport);
+
+			viewport.drag() // enable drag
+			.wheel() // enable zoom on mouse wheel
+			.pinch() // enable zoom on pinch
+			.bounce() // ??
+			.decelerate() // ??
+			.clamp({}) // don't allow to drag outside
+			.clampZoom({ // don't allow to zoom too much
+				minWidth: 400,
+				maxWidth: fieldWidth * rectSize * 1.5
+			}).fit();
+
+			// check regulary if scale is large enough to change view
+			// @todo clearInterval on destroy
+			setInterval(function () {
+				if (viewport.transform.scale._x > 0.5) {
+					background.visible = false;
+					backgroundZoomed.visible = true;
+				} else {
+					background.visible = true;
+					backgroundZoomed.visible = false;
+				}
+			}, 100);
+
+			// generate random pixel field
+			// @todo remove this
+
+			for (var y = 0; y < fieldHeight; y++) {
+				field.push([]);
+				fieldColored.push([]);
+				for (var x = 0; x < fieldWidth; x++) {
+					let color = Math.floor(Math.random() * this.palette.length);
+					field[y].push(Math.random() > 0.5 ? color : -1);
+					fieldColored[y].push(0);
+				}
+			}
+
+			// generate grayscale palettes
+
+			for (var i = 0; i < this.palette.length; i++) {
+
+				let r = this.palette[i]._r / 255,
+				    g = this.palette[i]._g / 255,
+				    b = this.palette[i]._b / 255;
+
+				colors.push(PIXI.utils.rgb2hex([r, g, b]));
+
+				//desaturate 
+				r = (r + g + b) / 3;
+				grayColors.push(PIXI.utils.rgb2hex([r / 2 + 0.5, r / 2 + 0.5, r / 2 + 0.5]));
+
+				//lighten
+				r = 1 - (1 - r) / 5;
+				lightGrayColors.push(PIXI.utils.rgb2hex([r, r, r]));
+
+				//darken
+				r = r - 0.5;
+				darkGrayColors.push(PIXI.utils.rgb2hex([r, r, r]));
+			}
+
+			// draw fields
+
+			var background = new PIXI.Graphics();
+			var backgroundZoomed = new PIXI.Graphics();
+			var front = new PIXI.Graphics();
+			for (var y = 0; y < fieldHeight; y++) {
+				for (var x = 0; x < fieldWidth; x++) {
+
+					if (field[y][x] === -1) continue;
+
+					pixelsToColorCount++;
+
+					backgroundZoomed.beginFill(lightGrayColors[field[y][x]]);
+					backgroundZoomed.drawRect(x * rectSize, y * rectSize, rectSize - 1, rectSize - 1);
+					backgroundZoomed.endFill();
+					let txt = new PIXI.Text(field[y][x] + 1, { fontFamily: 'Verdana', fontSize: 24, fill: darkGrayColors[field[y][x]], align: 'center' });
+					txt.x = (x + 0.5) * rectSize - txt.width / 2;
+					txt.y = (y + 0.5) * rectSize - txt.height / 2;
+					backgroundZoomed.addChild(txt);
+					background.beginFill(grayColors[field[y][x]]);
+					background.drawRect(x * rectSize, y * rectSize, rectSize, rectSize);
+					background.endFill();
+				}
+			}
+
+			// now we can cache rendered maps
+
+			background.cacheAsBitmap = true;
+			backgroundZoomed.cacheAsBitmap = true;
+
+			backgroundZoomed.visible = false;
+			viewport.addChild(background);
+			viewport.addChild(backgroundZoomed);
+			viewport.addChild(front);
+
+			var fillPixel = function (x, y) {
+
+				if (field[y][x] === -1) return;
+				if (fieldColored[y][x] === 1) return;
+
+				if (field[y][x] !== T.selectedColor) return;
+
+				fieldColored[y][x] = 1;
+				coloredPixelsCount++;
+
+				var endFill = function () {
+
+					front.cacheAsBitmap = false;
+
+					front.beginFill(colors[field[y][x]]);
+					front.drawRect(x * rectSize, y * rectSize, rectSize, rectSize);
+					front.endFill();
+
+					front.cacheAsBitmap = true;
+
+					viewport.removeChild(clip);
+					viewport.removeChild(mask);
+
+					if (coloredPixelsCount >= pixelsToColorCount) {
+						console.log('Congratulations! Level complete!');
+					}
+				};
+				var clip = new PIXI.Graphics();
+				var mask = new PIXI.Graphics();
+
+				mask.isMask = true;
+				mask.beginFill(colors[field[y][x]]);
+				mask.drawRect(x * rectSize, y * rectSize, rectSize, rectSize);
+				mask.x = mask.y = 0;
+				mask.endFill();
+
+				viewport.addChild(mask);
+
+				clip.beginFill(colors[field[y][x]]);
+				clip.drawCircle(0, 0, rectSize);
+				clip.endFill();
+				clip.x = (x + 0.5) * rectSize;
+				clip.y = (y + 0.5) * rectSize;
+				clip.scale = new PIXI.Point(0, 0);
+				clip.mask = mask;
+
+				viewport.addChild(clip);
+
+				gsap__WEBPACK_IMPORTED_MODULE_2__["TweenLite"].to(clip.scale, 0.7, { x: 1, y: 1, onComplete: endFill });
+			};
+
+			var tap = function (e) {
+				let point = e.data.getLocalPosition(viewport);
+				let x = Math.floor(point.x / rectSize);
+				let y = Math.floor(point.y / rectSize);
+				if (x >= 0 && x < fieldWidth && y >= 0 && y < fieldHeight) {
+					fillPixel(x, y);
+				}
+			};
+
+			viewport.on('tap', tap);
+			viewport.on('click', tap);
+		}
 	}
 });
 
@@ -226,7 +493,8 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var tinycolor2__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tinycolor2 */ "./node_modules/tinycolor2/tinycolor.js");
 /* harmony import */ var tinycolor2__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(tinycolor2__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _ColorPicker_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ColorPicker.vue */ "./src/Components/ColorPicker.vue");
+/* harmony import */ var _Field_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Field.vue */ "./src/Components/Field.vue");
+/* harmony import */ var _ColorPicker_vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ColorPicker.vue */ "./src/Components/ColorPicker.vue");
 //
 //
 //
@@ -234,6 +502,12 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+
 
 
 
@@ -243,19 +517,29 @@ __webpack_require__.r(__webpack_exports__);
 	data: function () {
 		return {
 			greeting: 'Helasalo',
-			palette: []
+			palette: [],
+			selectedColor: 0
 		};
 	},
 	created: function () {
-		var paletteColorsCount = 4;
+		var paletteColorsCount = 5;
 		for (var i = 0; i < paletteColorsCount; i++) {
 			let randColor = tinycolor2__WEBPACK_IMPORTED_MODULE_0___default.a.random();
 			this.palette.push(randColor);
 		}
+	},
+	mounted: function () {
 		console.log(this.palette);
+		this.$refs.field.render();
+	},
+	methods: {
+		changeColor: function (newColorIndex) {
+			this.selectedColor = newColorIndex;
+			console.log(newColorIndex);
+		}
 	},
 	components: {
-		ColorPicker: _ColorPicker_vue__WEBPACK_IMPORTED_MODULE_1__["default"]
+		Field: _Field_vue__WEBPACK_IMPORTED_MODULE_1__["default"], ColorPicker: _ColorPicker_vue__WEBPACK_IMPORTED_MODULE_2__["default"]
 	}
 });
 
@@ -527,7 +811,7 @@ exports = module.exports = __webpack_require__(/*! ../../node_modules/css-loader
 
 
 // module
-exports.push([module.i, "\n.color-button {\r\n\tdisplay: block;\r\n\tfloat: left;\r\n\twidth:40px;\r\n\theight: 40px;\r\n\tbackground: #fff;\r\n\tmargin:5px;\r\n\tborder-radius: 20px;\r\n\ttext-align: center;\r\n\tline-height: 40px;\r\n\tpadding: 0px;\n}\r\n", ""]);
+exports.push([module.i, "\n.color-button {\r\n\tdisplay: block;\r\n\tfloat: left;\r\n\tfont-family: Verdana;\r\n\tfont-size:18px;\r\n\tcolor: #a7a7a7;\r\n\t/*background-image: -webkit-gradient(linear, left top, left bottom, from(#f7f7f7), to(#e7e7e7));\r\n\tbackground-image: -webkit-linear-gradient(top, #f7f7f7, #e7e7e7); \r\n\tbackground-image: -moz-linear-gradient(top, #f7f7f7, #e7e7e7); \r\n\tbackground-image: -ms-linear-gradient(top, #f7f7f7, #e7e7e7); \r\n\tbackground-image: -o-linear-gradient(top, #f7f7f7, #e7e7e7); */\r\n\tmargin: 5px;\r\n\twidth: 44px;\r\n\theight: 44px;\r\n\tposition: relative;\r\n\ttext-align: center;\r\n\tline-height: 44px;\r\n\tborder-radius: 50%;\r\n\tbox-shadow: 0px 3px 8px #aaa, inset 0px 2px 3px #fff;\n}\n.color-button.selected {\r\n\twidth:54px;\r\n\theight:54px;\r\n\tline-height: 54px;\r\n\tmargin:0px;\n}\r\n", ""]);
 
 // exports
 
@@ -546,7 +830,26 @@ exports = module.exports = __webpack_require__(/*! ../../node_modules/css-loader
 
 
 // module
-exports.push([module.i, "\n.colorpicker {\r\n\tposition: absolute;\r\n\tbottom:0px; left:0px;\r\n\tbackground-color:#ff00FF;\r\n\twidth: 100%;\r\n\theight: 50px;\r\n\tpadding:0px 5px;\r\n\toverflow: none;\n}\r\n", ""]);
+exports.push([module.i, "\n.colorpicker {\r\n\tposition: absolute;\r\n\tbottom:0px; left:0px;\r\n\twidth: 100%;\r\n\theight: 60px;\r\n\toverflow: none;\n}\r\n", ""]);
+
+// exports
+
+
+/***/ }),
+
+/***/ "./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/Field.vue?vue&type=style&index=0&lang=css":
+/*!*******************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/css-loader!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/vue-loader/lib??vue-loader-options!./src/Components/Field.vue?vue&type=style&index=0&lang=css ***!
+  \*******************************************************************************************************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(/*! ../../node_modules/css-loader/lib/css-base.js */ "./node_modules/css-loader/lib/css-base.js")(false);
+// imports
+
+
+// module
+exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
 
 // exports
 
@@ -66661,7 +66964,12 @@ var render = function() {
   var _c = _vm._self._c || _h
   return _c(
     "div",
-    { staticClass: "color-button", style: { backgroundColor: _vm.cssColor } },
+    {
+      staticClass: "color-button",
+      class: { selected: _vm.selected },
+      style: { backgroundColor: _vm.cssBColor, color: _vm.cssFColor },
+      on: { click: _vm.toggle }
+    },
     [_vm._v(_vm._s(_vm.index + 1))]
   )
 }
@@ -66700,7 +67008,16 @@ var render = function() {
             _vm._l(_vm.palette, function(color, index) {
               return _c("ColorButton", {
                 key: index,
-                attrs: { index: index, color: color }
+                attrs: {
+                  index: index,
+                  color: color,
+                  selected: _vm.selectedColor == index
+                },
+                on: {
+                  toggle: function($event) {
+                    _vm.toggleButton(index)
+                  }
+                }
               })
             })
           )
@@ -66710,6 +67027,30 @@ var render = function() {
     ],
     1
   )
+}
+var staticRenderFns = []
+render._withStripped = true
+/* hot reload */
+if (false) { var api; }
+
+/***/ }),
+
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/Field.vue?vue&type=template&id=45f4b41a":
+/*!**********************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./src/Components/Field.vue?vue&type=template&id=45f4b41a ***!
+  \**********************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", { attrs: { id: "field" } })
 }
 var staticRenderFns = []
 render._withStripped = true
@@ -66737,9 +67078,15 @@ var render = function() {
     "div",
     { staticClass: "game" },
     [
-      _c("div", [_vm._v("Here will be the field")]),
+      _c("Field", {
+        ref: "field",
+        attrs: { palette: _vm.palette, selectedColor: _vm.selectedColor }
+      }),
       _vm._v(" "),
-      _c("ColorPicker", { attrs: { palette: _vm.palette } })
+      _c("ColorPicker", {
+        attrs: { palette: _vm.palette, selectedColor: _vm.selectedColor },
+        on: { setColor: _vm.changeColor }
+      })
     ],
     1
   )
@@ -66916,6 +67263,27 @@ if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
 var add = __webpack_require__(/*! ../../node_modules/vue-style-loader/lib/addStylesClient.js */ "./node_modules/vue-style-loader/lib/addStylesClient.js").default
 var update = add("03c44488", content, false, {});
+// Hot Module Replacement
+if(false) {}
+
+/***/ }),
+
+/***/ "./node_modules/vue-style-loader/index.js!./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/Field.vue?vue&type=style&index=0&lang=css":
+/*!***************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-style-loader!./node_modules/css-loader!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/vue-loader/lib??vue-loader-options!./src/Components/Field.vue?vue&type=style&index=0&lang=css ***!
+  \***************************************************************************************************************************************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(/*! !../../node_modules/css-loader!../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../node_modules/vue-loader/lib??vue-loader-options!./Field.vue?vue&type=style&index=0&lang=css */ "./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/Field.vue?vue&type=style&index=0&lang=css");
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var add = __webpack_require__(/*! ../../node_modules/vue-style-loader/lib/addStylesClient.js */ "./node_modules/vue-style-loader/lib/addStylesClient.js").default
+var update = add("044d2f5c", content, false, {});
 // Hot Module Replacement
 if(false) {}
 
@@ -79565,6 +79933,93 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ColorPicker_vue_vue_type_template_id_694b511e__WEBPACK_IMPORTED_MODULE_0__["render"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ColorPicker_vue_vue_type_template_id_694b511e__WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
+
+/***/ }),
+
+/***/ "./src/Components/Field.vue":
+/*!**********************************!*\
+  !*** ./src/Components/Field.vue ***!
+  \**********************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _Field_vue_vue_type_template_id_45f4b41a__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Field.vue?vue&type=template&id=45f4b41a */ "./src/Components/Field.vue?vue&type=template&id=45f4b41a");
+/* harmony import */ var _Field_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Field.vue?vue&type=script&lang=js */ "./src/Components/Field.vue?vue&type=script&lang=js");
+/* empty/unused harmony star reexport *//* harmony import */ var _Field_vue_vue_type_style_index_0_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Field.vue?vue&type=style&index=0&lang=css */ "./src/Components/Field.vue?vue&type=style&index=0&lang=css");
+/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__["default"])(
+  _Field_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"],
+  _Field_vue_vue_type_template_id_45f4b41a__WEBPACK_IMPORTED_MODULE_0__["render"],
+  _Field_vue_vue_type_template_id_45f4b41a__WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  null,
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "src/Components/Field.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./src/Components/Field.vue?vue&type=script&lang=js":
+/*!**********************************************************!*\
+  !*** ./src/Components/Field.vue?vue&type=script&lang=js ***!
+  \**********************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_node_modules_vue_loader_lib_index_js_vue_loader_options_Field_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../node_modules/babel-loader/lib!../../node_modules/vue-loader/lib??vue-loader-options!./Field.vue?vue&type=script&lang=js */ "./node_modules/babel-loader/lib/index.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/Field.vue?vue&type=script&lang=js");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_node_modules_vue_loader_lib_index_js_vue_loader_options_Field_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./src/Components/Field.vue?vue&type=style&index=0&lang=css":
+/*!******************************************************************!*\
+  !*** ./src/Components/Field.vue?vue&type=style&index=0&lang=css ***!
+  \******************************************************************/
+/*! no static exports found */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_vue_loader_lib_index_js_vue_loader_options_Field_vue_vue_type_style_index_0_lang_css__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../node_modules/vue-style-loader!../../node_modules/css-loader!../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../node_modules/vue-loader/lib??vue-loader-options!./Field.vue?vue&type=style&index=0&lang=css */ "./node_modules/vue-style-loader/index.js!./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/Field.vue?vue&type=style&index=0&lang=css");
+/* harmony import */ var _node_modules_vue_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_vue_loader_lib_index_js_vue_loader_options_Field_vue_vue_type_style_index_0_lang_css__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_vue_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_vue_loader_lib_index_js_vue_loader_options_Field_vue_vue_type_style_index_0_lang_css__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _node_modules_vue_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_vue_loader_lib_index_js_vue_loader_options_Field_vue_vue_type_style_index_0_lang_css__WEBPACK_IMPORTED_MODULE_0__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _node_modules_vue_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_vue_loader_lib_index_js_vue_loader_options_Field_vue_vue_type_style_index_0_lang_css__WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
+ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_vue_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_vue_loader_lib_index_js_vue_loader_options_Field_vue_vue_type_style_index_0_lang_css__WEBPACK_IMPORTED_MODULE_0___default.a); 
+
+/***/ }),
+
+/***/ "./src/Components/Field.vue?vue&type=template&id=45f4b41a":
+/*!****************************************************************!*\
+  !*** ./src/Components/Field.vue?vue&type=template&id=45f4b41a ***!
+  \****************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Field_vue_vue_type_template_id_45f4b41a__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../node_modules/vue-loader/lib??vue-loader-options!./Field.vue?vue&type=template&id=45f4b41a */ "./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/Field.vue?vue&type=template&id=45f4b41a");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Field_vue_vue_type_template_id_45f4b41a__WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Field_vue_vue_type_template_id_45f4b41a__WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
 
 
 

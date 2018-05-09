@@ -1,32 +1,48 @@
 <template>
 	<div class="game">
-		<div>Here will be the field</div>
-		<ColorPicker v-bind:palette="palette"></ColorPicker>
+		<Field ref="field"
+			v-bind:palette="palette"
+			v-bind:selectedColor="selectedColor"></Field>
+		<ColorPicker
+			v-bind:palette="palette"
+			v-bind:selectedColor="selectedColor"
+			v-on:setColor="changeColor"></ColorPicker>
 	</div>
 </template>
 
 <script>
 
 import Tinycolor from "tinycolor2";
+import Field from './Field.vue';
 import ColorPicker from './ColorPicker.vue';
 
 export default {
 	data: function () {
 		return {
 			greeting: 'Helasalo',
-			palette:[]
+			palette:[],
+			selectedColor:0
 		}
 	},
 	created: function () {
-		var paletteColorsCount = 4;
+		var paletteColorsCount = 5;
 		for (var i = 0; i < paletteColorsCount;i++) {
 			let randColor = Tinycolor.random();
 			this.palette.push(randColor);
-		} 
-    	console.log(this.palette);
-  	},	
+		}
+  	},
+  	mounted: function () {
+  		console.log(this.palette);
+		this.$refs.field.render();
+  	},
+  	methods: {
+  		changeColor:function (newColorIndex) {
+  			this.selectedColor = newColorIndex;
+  			console.log(newColorIndex); 
+  		}
+  	},
 	components: {
-		ColorPicker
+		Field, ColorPicker
 	}
 }
 

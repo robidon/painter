@@ -7,7 +7,9 @@
 					v-for="(color, index) in palette"
 					:key="index"
 					v-bind:index="index" 
-					v-bind:color="color"></ColorButton>
+					v-bind:color="color"
+					v-bind:selected="selectedColor == index"
+					v-on:toggle="toggleButton(index)"></ColorButton>
 		    </swiper-slide>	
 		    <!-- Optional controls -->
 		    <!--<div class="swiper-pagination"  slot="pagination"></div>
@@ -28,6 +30,10 @@ export default {
 		palette: {
 			type: Array,
 			default: function () { return []; }
+		},
+		selectedColor: {
+			type:Number,
+			default:0
 		}
 	},
 	data: function () {
@@ -48,6 +54,11 @@ export default {
 	mounted: function () {
       	//this.swiper.slideTo(3, 1000, false)
 	},
+	methods: {
+		toggleButton: function (index) {
+			this.$emit("setColor", index);
+		}
+	},
 	components: {
 		ColorButton,
 		swiper,
@@ -60,10 +71,8 @@ export default {
 .colorpicker {
 	position: absolute;
 	bottom:0px; left:0px;
-	background-color:#ff00FF;
 	width: 100%;
-	height: 50px;
-	padding:0px 5px;
+	height: 60px;
 	overflow: none;
 }
 </style>
