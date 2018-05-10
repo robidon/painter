@@ -15,6 +15,10 @@ export default {
 			type: Array,
 			default: function () { return []; }
 		},
+		field: {
+			type:Object,
+			default: function () { return {}; }	
+		},
 		selectedColor: {
 			type:Number,
 			default:0
@@ -47,25 +51,22 @@ export default {
 
 			document.getElementById('field').appendChild(app.view);
 
-			var field = [],
-				fieldColored = [],
-				colors = [],
+			var colors = [],
 				grayColors = [],
 				lightGrayColors = [],
 				darkGrayColors = [];
 
 			var coloredPixelsCount = 0,
-				pixelsToColorCount = 0,
-				fieldWidth = 30,
-				fieldHeight = 40;
+				pixelsToColorCount = 0;
+
 			var rectSize = 50;
 
 			// create viewport
 			var viewport = new Viewport({
 			    screenWidth: window.innerWidth,
 			    screenHeight: window.innerHeight,
-			    worldWidth: fieldWidth*rectSize,
-			    worldHeight: fieldHeight*rectSize
+			    worldWidth: this.field.width*rectSize,
+			    worldHeight: this.field.height*rectSize
 			});
 
 			app.stage.addChild(viewport);
@@ -79,7 +80,7 @@ export default {
 			    .clamp({}) // don't allow to drag outside
 			    .clampZoom({ // don't allow to zoom too much
 			    	minWidth:400,
-			    	maxWidth:fieldWidth*rectSize*1.5
+			    	maxWidth:this.field.width*rectSize*1.5
 			    })
 			    .fit();
 
@@ -96,18 +97,7 @@ export default {
 				}
 			},100);
 
-			// generate random pixel field
-			// @todo remove this
 
-			for (var y=0;y<fieldHeight;y++) {
-				field.push([]);
-				fieldColored.push([]);
-				for (var x=0;x<fieldWidth;x++) {
-					let color = Math.floor(Math.random()*this.palette.length);
-					field[y].push( (Math.random()>0.5) ? color : -1 );
-					fieldColored[y].push(0);
-				}
-			}
 
 			// generate grayscale palettes
 
@@ -137,21 +127,21 @@ export default {
 			var background = new PIXI.Graphics();
 			var backgroundZoomed = new PIXI.Graphics();
 			var front = new PIXI.Graphics();
-			for (var y=0;y<fieldHeight;y++) {
-				for (var x=0;x<fieldWidth;x++) {
+			for (var y=0;y<this.field.height;y++) {
+				for (var x=0;x<this.field.width;x++) {
 
-					if ( field[y][x] === -1 ) continue;
+					if ( this.field.data[y][x] === -1 ) continue;
 					
 					pixelsToColorCount ++;
 
-					backgroundZoomed.beginFill(lightGrayColors[field[y][x]]);
+					backgroundZoomed.beginFill(lightGrayColors[this.field.data[y][x]]);
 					backgroundZoomed.drawRect(x*rectSize,y*rectSize,rectSize-1,rectSize-1);
 					backgroundZoomed.endFill();
-					let txt = new PIXI.Text(field[y][x]+1, {fontFamily : 'Verdana', fontSize: 24, fill : darkGrayColors[field[y][x]], align : 'center'});
+					let txt = new PIXI.Text(this.field.data[y][x]+1, {fontFamily : 'Verdana', fontSize: 24, fill : darkGrayColors[this.field.data[y][x]], align : 'center'});
 					txt.x = (x+0.5)*rectSize-txt.width/2;
 					txt.y = (y+0.5)*rectSize-txt.height/2;
 					backgroundZoomed.addChild(txt);
-					background.beginFill(grayColors[field[y][x]]);
+					background.beginFill(grayColors[this.field.data[y][x]]);
 					background.drawRect(x*rectSize,y*rectSize,rectSize,rectSize);
 					background.endFill();
 				}
@@ -171,11 +161,11 @@ export default {
 				lastColoredPixelY = -1,
 				lastColoredPixelTime = -1000;
 			var fillPixel = function(x, y, flood = false, floodColor = null) {
-				if (x<0||y<0||x>=fieldWidth||y>=fieldHeight) return;
-				if (field[y][x] === -1) return;
-				if (field[y][x] !== T.selectedColor) {
+				if (x<0||y<0||x>=T.field.width||y>=T.field.height) return;
+				if (T.field.data[y][x] === -1) return;
+				if (T.field.data[y][x] !== T.selectedColor) {
 					if (!flood) return;
-					if (field[y][x] !== floodColor) return;
+					if (T.field.data[y][x] !== floodColor) return;
 				}
 
 				if (!flood) {
@@ -194,7 +184,7 @@ export default {
 					lastColoredPixelY = y;
 				}
 
-				if (fieldColored[y][x] === 1) return;
+				if (T.field.colored[y][x] === 1) return;
 
 				if (flood) {
 					var floodTimeout = setTimeout(function () {
@@ -206,14 +196,14 @@ export default {
 				}
 
 
-				fieldColored[y][x] = 1;
+				T.field.colored[y][x] = 1;
 				coloredPixelsCount ++;
 
 				var endFill = function () {
 
 					front.cacheAsBitmap = false;
 			
-					front.beginFill(colors[field[y][x]]);
+					front.beginFill(colors[T.field.data[y][x]]);
 					front.drawRect(x*rectSize,y*rectSize,rectSize,rectSize);
 					front.endFill();
 			
@@ -232,14 +222,14 @@ export default {
 
 				
 				mask.isMask = true;
-				mask.beginFill(colors[field[y][x]]);
+				mask.beginFill(colors[T.field.data[y][x]]);
 				mask.drawRect(x*rectSize,y*rectSize,rectSize,rectSize);
 				mask.x = mask.y = 0;
 				mask.endFill();
 
 				viewport.addChild(mask);
 
-				clip.beginFill(colors[field[y][x]]);
+				clip.beginFill(colors[T.field.data[y][x]]);
 				clip.drawCircle( 0, 0, rectSize);
 				clip.endFill();
 				clip.x = (x+0.5) * rectSize;
@@ -256,7 +246,7 @@ export default {
 				let point = e.data.getLocalPosition(viewport);
 				let x = Math.floor(point.x/rectSize);
 				let y = Math.floor(point.y/rectSize);
-				if (x >= 0 && x < fieldWidth && y >=0 && y < fieldHeight) {
+				if (x >= 0 && x < T.field.width && y >=0 && y < T.field.height) {
 					fillPixel(x,y);
 				}
 			};
