@@ -809,7 +809,7 @@ exports = module.exports = __webpack_require__(/*! ../../node_modules/css-loader
 
 
 // module
-exports.push([module.i, "\n.picker-container {\r\n\tposition: absolute;\r\n\tbottom:0px; left:0px;\r\n\twidth: 100%;\r\n    height: 70px;\r\n    overflow: hidden;\n}\n.colorpicker {\r\n    padding:5px 10px;\r\n\theight: 90px;\r\n    white-space: nowrap;\r\n    overflow-x: scroll;\r\n    overflow-y: hidden;\r\n    -webkit-overflow-scrolling: touch;\n}\r\n", ""]);
+exports.push([module.i, "\n.picker-container {\r\n\tposition: absolute;\r\n\tbottom:0px; left:0px;\r\n\twidth: 100%;\r\n    height: 70px;\r\n    overflow: hidden;\n}\n.colorpicker {\r\n\ttext-align: center;\r\n    padding:5px 10px;\r\n\theight: 90px;\r\n    white-space: nowrap;\r\n    overflow-x: scroll;\r\n    overflow-y: hidden;\r\n    -webkit-overflow-scrolling: touch;\n}\r\n", ""]);
 
 // exports
 

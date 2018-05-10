@@ -46,6 +46,7 @@ export default {
     overflow: hidden;
 }
 .colorpicker {
+	text-align: center;
     padding:5px 10px;
 	height: 90px;
     white-space: nowrap;
