@@ -37,8 +37,7 @@ export default {
 
 <style>
 .color-button {
-	display: block;
-	float: left;
+	display: inline-block;
 	font-family: Verdana;
 	font-size:18px;
 	color: #a7a7a7;

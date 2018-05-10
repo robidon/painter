@@ -26,7 +26,7 @@ export default {
 	},
 	created: function () {
 		// @TODO generate pixels field and palette from images, not randomly 
-		var paletteColorsCount = 2;
+		var paletteColorsCount = 10;
 		for (var i = 0; i < paletteColorsCount;i++) {
 			let randColor = Tinycolor.random();
 			this.palette.push(randColor);
