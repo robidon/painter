@@ -30,6 +30,7 @@
     "jquery": "^3.3.1",
     "pixi-viewport": "^1.6.2",
     "pixi.js": "^4.7.3",
+    "rgbquant": "^1.1.2",
     "tinycolor2": "^1.4.1",
     "underscore": "^1.9.0",
     "vue": "^2.5.16",

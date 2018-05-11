@@ -81,23 +81,42 @@
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Components_Game_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Components/Game.vue */ "./src/Components/Game.vue");
+/* harmony import */ var _Components_Menu_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Components/Menu.vue */ "./src/Components/Menu.vue");
 //
 //
 //
 //
 //
 //
+//
+
 
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
 	data: function () {
 		return {
-			greeting: 'Helasalo'
+			selectedImageIndex: -1,
+			images: []
 		};
 	},
+	created: function () {
+		this.images = [{
+			width: 5,
+			height: 5,
+			data: [[0, 0, 0, 0, 0], [0, 1, 1, 1, 0], [0, 1, 1, 2, 0], [0, 1, 2, 3, 0], [0, 0, 0, 0, 0]],
+			colored: [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]],
+			palette: ["#ff0000", "#00ff00", "#0000ff"]
+		}, {
+			width: 5,
+			height: 5,
+			data: [[0, 0, 0, 0, 0], [0, 2, 1, 1, 0], [0, 1, 2, 3, 0], [0, 1, 3, 2, 0], [0, 0, 0, 0, 0]],
+			colored: [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]],
+			palette: ["#f00000", "#00f000", "#0000f0"]
+		}];
+	},
 	components: {
-		Game: _Components_Game_vue__WEBPACK_IMPORTED_MODULE_0__["default"]
+		Game: _Components_Game_vue__WEBPACK_IMPORTED_MODULE_0__["default"], Menu: _Components_Menu_vue__WEBPACK_IMPORTED_MODULE_1__["default"]
 	}
 });
 
@@ -201,10 +220,101 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
-/***/ "./node_modules/babel-loader/lib/index.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/Field.vue?vue&type=script&lang=js":
-/*!********************************************************************************************************************************************!*\
-  !*** ./node_modules/babel-loader/lib!./node_modules/vue-loader/lib??vue-loader-options!./src/Components/Field.vue?vue&type=script&lang=js ***!
-  \********************************************************************************************************************************************/
+/***/ "./node_modules/babel-loader/lib/index.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/Game.vue?vue&type=script&lang=js":
+/*!*******************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib!./node_modules/vue-loader/lib??vue-loader-options!./src/Components/Game.vue?vue&type=script&lang=js ***!
+  \*******************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var tinycolor2__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tinycolor2 */ "./node_modules/tinycolor2/tinycolor.js");
+/* harmony import */ var tinycolor2__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(tinycolor2__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _GameCanvas_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./GameCanvas.vue */ "./src/Components/GameCanvas.vue");
+/* harmony import */ var _ColorPicker_vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ColorPicker.vue */ "./src/Components/ColorPicker.vue");
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+
+
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+	props: {
+		image: {
+			type: Object,
+			default: function () {
+				return {};
+			}
+		}
+	},
+	data: function () {
+		return {
+			palette: [],
+			selectedColor: 0
+		};
+	},
+	created: function () {
+
+		// generate random pixel image
+		// @todo remove this
+		var image = {
+			height: 30,
+			width: 40,
+			data: [],
+			colored: []
+		};
+		var paletteColorsCount = 10;
+		for (var y = 0; y < image.height; y++) {
+			image.data.push([]);
+			image.colored.push([]);
+			for (var x = 0; x < image.width; x++) {
+				let color = Math.floor(Math.random() * paletteColorsCount);
+				image.data[y].push(Math.random() > 0.5 ? color : -1);
+				image.colored[y].push(0);
+			}
+		}
+		//yes, i know about vue warning
+		this.image = image;
+
+		// @todo generate pixels image and palette from images, not randomly 
+		for (var i = 0; i < paletteColorsCount; i++) {
+			let randColor = tinycolor2__WEBPACK_IMPORTED_MODULE_0___default.a.random();
+			this.palette.push(randColor);
+		}
+	},
+	mounted: function () {
+		this.$refs.canvas.render();
+	},
+	methods: {
+		changeColor: function (newColorIndex) {
+			this.selectedColor = newColorIndex;
+		}
+	},
+	components: {
+		GameCanvas: _GameCanvas_vue__WEBPACK_IMPORTED_MODULE_1__["default"], ColorPicker: _ColorPicker_vue__WEBPACK_IMPORTED_MODULE_2__["default"]
+	}
+});
+
+/***/ }),
+
+/***/ "./node_modules/babel-loader/lib/index.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/GameCanvas.vue?vue&type=script&lang=js":
+/*!*************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib!./node_modules/vue-loader/lib??vue-loader-options!./src/Components/GameCanvas.vue?vue&type=script&lang=js ***!
+  \*************************************************************************************************************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -235,7 +345,7 @@ __webpack_require__.r(__webpack_exports__);
 				return [];
 			}
 		},
-		field: {
+		image: {
 			type: Object,
 			default: function () {
 				return {};
@@ -269,7 +379,7 @@ __webpack_require__.r(__webpack_exports__);
 			app.renderer.autoResize = true;
 			app.renderer.resize(window.innerWidth, window.innerHeight);
 
-			document.getElementById('field').appendChild(app.view);
+			document.getElementById('image').appendChild(app.view);
 
 			var colors = [],
 			    grayColors = [],
@@ -285,8 +395,8 @@ __webpack_require__.r(__webpack_exports__);
 			var viewport = new pixi_viewport__WEBPACK_IMPORTED_MODULE_0___default.a({
 				screenWidth: window.innerWidth,
 				screenHeight: window.innerHeight,
-				worldWidth: this.field.width * rectSize,
-				worldHeight: this.field.height * rectSize
+				worldWidth: this.image.width * rectSize,
+				worldHeight: this.image.height * rectSize
 			});
 
 			app.stage.addChild(viewport);
@@ -299,7 +409,7 @@ __webpack_require__.r(__webpack_exports__);
 			.clamp({}) // don't allow to drag outside
 			.clampZoom({ // don't allow to zoom too much
 				minWidth: 400,
-				maxWidth: this.field.width * rectSize * 1.5
+				maxWidth: this.image.width * rectSize * 1.5
 			}).fit();
 
 			// check regulary if scale is large enough to change view
@@ -337,26 +447,26 @@ __webpack_require__.r(__webpack_exports__);
 				darkGrayColors.push(PIXI.utils.rgb2hex([r, r, r]));
 			}
 
-			// draw fields
+			// draw images
 
 			var background = new PIXI.Graphics();
 			var backgroundZoomed = new PIXI.Graphics();
 			var front = new PIXI.Graphics();
-			for (var y = 0; y < this.field.height; y++) {
-				for (var x = 0; x < this.field.width; x++) {
+			for (var y = 0; y < this.image.height; y++) {
+				for (var x = 0; x < this.image.width; x++) {
 
-					if (this.field.data[y][x] === -1) continue;
+					if (this.image.data[y][x] === -1) continue;
 
 					pixelsToColorCount++;
 
-					backgroundZoomed.beginFill(lightGrayColors[this.field.data[y][x]]);
+					backgroundZoomed.beginFill(lightGrayColors[this.image.data[y][x]]);
 					backgroundZoomed.drawRect(x * rectSize, y * rectSize, rectSize - 1, rectSize - 1);
 					backgroundZoomed.endFill();
-					let txt = new PIXI.Text(this.field.data[y][x] + 1, { fontFamily: 'Verdana', fontSize: 24, fill: darkGrayColors[this.field.data[y][x]], align: 'center' });
+					let txt = new PIXI.Text(this.image.data[y][x] + 1, { fontFamily: 'Verdana', fontSize: 24, fill: darkGrayColors[this.image.data[y][x]], align: 'center' });
 					txt.x = (x + 0.5) * rectSize - txt.width / 2;
 					txt.y = (y + 0.5) * rectSize - txt.height / 2;
 					backgroundZoomed.addChild(txt);
-					background.beginFill(grayColors[this.field.data[y][x]]);
+					background.beginFill(grayColors[this.image.data[y][x]]);
 					background.drawRect(x * rectSize, y * rectSize, rectSize, rectSize);
 					background.endFill();
 				}
@@ -376,11 +486,11 @@ __webpack_require__.r(__webpack_exports__);
 			    lastColoredPixelY = -1,
 			    lastColoredPixelTime = -1000;
 			var fillPixel = function (x, y, flood = false, floodColor = null) {
-				if (x < 0 || y < 0 || x >= T.field.width || y >= T.field.height) return;
-				if (T.field.data[y][x] === -1) return;
-				if (T.field.data[y][x] !== T.selectedColor) {
+				if (x < 0 || y < 0 || x >= T.image.width || y >= T.image.height) return;
+				if (T.image.data[y][x] === -1) return;
+				if (T.image.data[y][x] !== T.selectedColor) {
 					if (!flood) return;
-					if (T.field.data[y][x] !== floodColor) return;
+					if (T.image.data[y][x] !== floodColor) return;
 				}
 
 				if (!flood) {
@@ -399,7 +509,7 @@ __webpack_require__.r(__webpack_exports__);
 					lastColoredPixelY = y;
 				}
 
-				if (T.field.colored[y][x] === 1) return;
+				if (T.image.colored[y][x] === 1) return;
 
 				if (flood) {
 					var floodTimeout = setTimeout(function () {
@@ -410,14 +520,14 @@ __webpack_require__.r(__webpack_exports__);
 					}, 100);
 				}
 
-				T.field.colored[y][x] = 1;
+				T.image.colored[y][x] = 1;
 				coloredPixelsCount++;
 
 				var endFill = function () {
 
 					front.cacheAsBitmap = false;
 
-					front.beginFill(colors[T.field.data[y][x]]);
+					front.beginFill(colors[T.image.data[y][x]]);
 					front.drawRect(x * rectSize, y * rectSize, rectSize, rectSize);
 					front.endFill();
 
@@ -434,14 +544,14 @@ __webpack_require__.r(__webpack_exports__);
 				var mask = new PIXI.Graphics();
 
 				mask.isMask = true;
-				mask.beginFill(colors[T.field.data[y][x]]);
+				mask.beginFill(colors[T.image.data[y][x]]);
 				mask.drawRect(x * rectSize, y * rectSize, rectSize, rectSize);
 				mask.x = mask.y = 0;
 				mask.endFill();
 
 				viewport.addChild(mask);
 
-				clip.beginFill(colors[T.field.data[y][x]]);
+				clip.beginFill(colors[T.image.data[y][x]]);
 				clip.drawCircle(0, 0, rectSize);
 				clip.endFill();
 				clip.x = (x + 0.5) * rectSize;
@@ -458,7 +568,7 @@ __webpack_require__.r(__webpack_exports__);
 				let point = e.data.getLocalPosition(viewport);
 				let x = Math.floor(point.x / rectSize);
 				let y = Math.floor(point.y / rectSize);
-				if (x >= 0 && x < T.field.width && y >= 0 && y < T.field.height) {
+				if (x >= 0 && x < T.image.width && y >= 0 && y < T.image.height) {
 					fillPixel(x, y);
 				}
 			};
@@ -471,93 +581,34 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
-/***/ "./node_modules/babel-loader/lib/index.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/Game.vue?vue&type=script&lang=js":
+/***/ "./node_modules/babel-loader/lib/index.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/Menu.vue?vue&type=script&lang=js":
 /*!*******************************************************************************************************************************************!*\
-  !*** ./node_modules/babel-loader/lib!./node_modules/vue-loader/lib??vue-loader-options!./src/Components/Game.vue?vue&type=script&lang=js ***!
+  !*** ./node_modules/babel-loader/lib!./node_modules/vue-loader/lib??vue-loader-options!./src/Components/Menu.vue?vue&type=script&lang=js ***!
   \*******************************************************************************************************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var tinycolor2__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tinycolor2 */ "./node_modules/tinycolor2/tinycolor.js");
-/* harmony import */ var tinycolor2__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(tinycolor2__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _Field_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Field.vue */ "./src/Components/Field.vue");
-/* harmony import */ var _ColorPicker_vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ColorPicker.vue */ "./src/Components/ColorPicker.vue");
 //
 //
 //
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-
-
-
-
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
 	props: {
-		field: {
-			type: Object,
+		images: {
+			type: Array,
 			default: function () {
-				return {};
+				return [];
 			}
 		}
 	},
-	data: function () {
-		return {
-			palette: [],
-			selectedColor: 0
-		};
-	},
-	created: function () {
-
-		// generate random pixel field
-		// @todo remove this
-		var field = {
-			height: 30,
-			width: 40,
-			data: [],
-			colored: []
-		};
-		var paletteColorsCount = 10;
-		for (var y = 0; y < field.height; y++) {
-			field.data.push([]);
-			field.colored.push([]);
-			for (var x = 0; x < field.width; x++) {
-				let color = Math.floor(Math.random() * paletteColorsCount);
-				field.data[y].push(Math.random() > 0.5 ? color : -1);
-				field.colored[y].push(0);
-			}
-		}
-		//yes, i know about vue warning
-		this.field = field;
-
-		// @todo generate pixels field and palette from images, not randomly 
-		for (var i = 0; i < paletteColorsCount; i++) {
-			let randColor = tinycolor2__WEBPACK_IMPORTED_MODULE_0___default.a.random();
-			this.palette.push(randColor);
-		}
-	},
-	mounted: function () {
-		this.$refs.field.render();
-	},
-	methods: {
-		changeColor: function (newColorIndex) {
-			this.selectedColor = newColorIndex;
-		}
-	},
-	components: {
-		Field: _Field_vue__WEBPACK_IMPORTED_MODULE_1__["default"], ColorPicker: _ColorPicker_vue__WEBPACK_IMPORTED_MODULE_2__["default"]
-	}
+	computed: {},
+	methods: {}
 });
 
 /***/ }),
@@ -790,7 +841,7 @@ exports = module.exports = __webpack_require__(/*! ../node_modules/css-loader/li
 
 
 // module
-exports.push([module.i, "\n#app {\r\n\tbackground-color:#ff0000;\r\n\tmin-height: 100%;\r\n\tmin-width: 100%;\n}\r\n", ""]);
+exports.push([module.i, "\n#app {\r\n\tbackground-color:#ffffff;\r\n\tmin-height: 100%;\r\n\tmin-width: 100%;\n}\r\n", ""]);
 
 // exports
 
@@ -835,25 +886,6 @@ exports.push([module.i, "\n.picker-container {\r\n\tposition: absolute;\r\n\tbot
 
 /***/ }),
 
-/***/ "./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/Field.vue?vue&type=style&index=0&lang=css":
-/*!*******************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/css-loader!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/vue-loader/lib??vue-loader-options!./src/Components/Field.vue?vue&type=style&index=0&lang=css ***!
-  \*******************************************************************************************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(/*! ../../node_modules/css-loader/lib/css-base.js */ "./node_modules/css-loader/lib/css-base.js")(false);
-// imports
-
-
-// module
-exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
-
-// exports
-
-
-/***/ }),
-
 /***/ "./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/Game.vue?vue&type=style&index=0&lang=css":
 /*!******************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/css-loader!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/vue-loader/lib??vue-loader-options!./src/Components/Game.vue?vue&type=style&index=0&lang=css ***!
@@ -867,6 +899,25 @@ exports = module.exports = __webpack_require__(/*! ../../node_modules/css-loader
 
 // module
 exports.push([module.i, "\n.game {\r\n\tposition:absolute;\r\n\tleft:0;top:0;bottom:0;right:0;\n}\r\n", ""]);
+
+// exports
+
+
+/***/ }),
+
+/***/ "./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/GameCanvas.vue?vue&type=style&index=0&lang=css":
+/*!************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/css-loader!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/vue-loader/lib??vue-loader-options!./src/Components/GameCanvas.vue?vue&type=style&index=0&lang=css ***!
+  \************************************************************************************************************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(/*! ../../node_modules/css-loader/lib/css-base.js */ "./node_modules/css-loader/lib/css-base.js")(false);
+// imports
+
+
+// module
+exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
 
 // exports
 
@@ -59257,7 +59308,20 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("div", { attrs: { id: "app" } }, [_c("Game")], 1)
+  return _c(
+    "div",
+    { attrs: { id: "app" } },
+    [
+      _vm.selectedImageIndex === -1
+        ? _c("Menu", { attrs: { images: _vm.images } })
+        : _vm._e(),
+      _vm._v(" "),
+      _vm.selectedImageIndex !== -1
+        ? _c("Game", { attrs: { image: _vm.images[_vm.selectedImageIndex] } })
+        : _vm._e()
+    ],
+    1
+  )
 }
 var staticRenderFns = []
 render._withStripped = true
@@ -59343,30 +59407,6 @@ if (false) { var api; }
 
 /***/ }),
 
-/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/Field.vue?vue&type=template&id=45f4b41a":
-/*!**********************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./src/Components/Field.vue?vue&type=template&id=45f4b41a ***!
-  \**********************************************************************************************************************************************************************************************/
-/*! exports provided: render, staticRenderFns */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
-var render = function() {
-  var _vm = this
-  var _h = _vm.$createElement
-  var _c = _vm._self._c || _h
-  return _c("div", { attrs: { id: "field" } })
-}
-var staticRenderFns = []
-render._withStripped = true
-/* hot reload */
-if (false) { var api; }
-
-/***/ }),
-
 /***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/Game.vue?vue&type=template&id=915111fc":
 /*!*********************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./src/Components/Game.vue?vue&type=template&id=915111fc ***!
@@ -59386,11 +59426,11 @@ var render = function() {
     "div",
     { staticClass: "game" },
     [
-      _c("Field", {
-        ref: "field",
+      _c("GameCanvas", {
+        ref: "canvas",
         attrs: {
           palette: _vm.palette,
-          field: _vm.field,
+          image: _vm.image,
           selectedColor: _vm.selectedColor
         }
       }),
@@ -59402,6 +59442,54 @@ var render = function() {
     ],
     1
   )
+}
+var staticRenderFns = []
+render._withStripped = true
+/* hot reload */
+if (false) { var api; }
+
+/***/ }),
+
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/GameCanvas.vue?vue&type=template&id=41eae4fa":
+/*!***************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./src/Components/GameCanvas.vue?vue&type=template&id=41eae4fa ***!
+  \***************************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", { attrs: { id: "image" } })
+}
+var staticRenderFns = []
+render._withStripped = true
+/* hot reload */
+if (false) { var api; }
+
+/***/ }),
+
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/Menu.vue?vue&type=template&id=06647c22":
+/*!*********************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./src/Components/Menu.vue?vue&type=template&id=06647c22 ***!
+  \*********************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div")
 }
 var staticRenderFns = []
 render._withStripped = true
@@ -59580,27 +59668,6 @@ if(false) {}
 
 /***/ }),
 
-/***/ "./node_modules/vue-style-loader/index.js!./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/Field.vue?vue&type=style&index=0&lang=css":
-/*!***************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/vue-style-loader!./node_modules/css-loader!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/vue-loader/lib??vue-loader-options!./src/Components/Field.vue?vue&type=style&index=0&lang=css ***!
-  \***************************************************************************************************************************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-// style-loader: Adds some css to the DOM by adding a <style> tag
-
-// load the styles
-var content = __webpack_require__(/*! !../../node_modules/css-loader!../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../node_modules/vue-loader/lib??vue-loader-options!./Field.vue?vue&type=style&index=0&lang=css */ "./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/Field.vue?vue&type=style&index=0&lang=css");
-if(typeof content === 'string') content = [[module.i, content, '']];
-if(content.locals) module.exports = content.locals;
-// add the styles to the DOM
-var add = __webpack_require__(/*! ../../node_modules/vue-style-loader/lib/addStylesClient.js */ "./node_modules/vue-style-loader/lib/addStylesClient.js").default
-var update = add("044d2f5c", content, false, {});
-// Hot Module Replacement
-if(false) {}
-
-/***/ }),
-
 /***/ "./node_modules/vue-style-loader/index.js!./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/Game.vue?vue&type=style&index=0&lang=css":
 /*!**************************************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/vue-style-loader!./node_modules/css-loader!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/vue-loader/lib??vue-loader-options!./src/Components/Game.vue?vue&type=style&index=0&lang=css ***!
@@ -59617,6 +59684,27 @@ if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
 var add = __webpack_require__(/*! ../../node_modules/vue-style-loader/lib/addStylesClient.js */ "./node_modules/vue-style-loader/lib/addStylesClient.js").default
 var update = add("789140e4", content, false, {});
+// Hot Module Replacement
+if(false) {}
+
+/***/ }),
+
+/***/ "./node_modules/vue-style-loader/index.js!./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/GameCanvas.vue?vue&type=style&index=0&lang=css":
+/*!********************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-style-loader!./node_modules/css-loader!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/vue-loader/lib??vue-loader-options!./src/Components/GameCanvas.vue?vue&type=style&index=0&lang=css ***!
+  \********************************************************************************************************************************************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(/*! !../../node_modules/css-loader!../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../node_modules/vue-loader/lib??vue-loader-options!./GameCanvas.vue?vue&type=style&index=0&lang=css */ "./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/GameCanvas.vue?vue&type=style&index=0&lang=css");
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var add = __webpack_require__(/*! ../../node_modules/vue-style-loader/lib/addStylesClient.js */ "./node_modules/vue-style-loader/lib/addStylesClient.js").default
+var update = add("7b7f80d4", content, false, {});
 // Hot Module Replacement
 if(false) {}
 
@@ -72250,93 +72338,6 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
-/***/ "./src/Components/Field.vue":
-/*!**********************************!*\
-  !*** ./src/Components/Field.vue ***!
-  \**********************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _Field_vue_vue_type_template_id_45f4b41a__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Field.vue?vue&type=template&id=45f4b41a */ "./src/Components/Field.vue?vue&type=template&id=45f4b41a");
-/* harmony import */ var _Field_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Field.vue?vue&type=script&lang=js */ "./src/Components/Field.vue?vue&type=script&lang=js");
-/* empty/unused harmony star reexport *//* harmony import */ var _Field_vue_vue_type_style_index_0_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Field.vue?vue&type=style&index=0&lang=css */ "./src/Components/Field.vue?vue&type=style&index=0&lang=css");
-/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
-
-
-
-
-
-
-/* normalize component */
-
-var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__["default"])(
-  _Field_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"],
-  _Field_vue_vue_type_template_id_45f4b41a__WEBPACK_IMPORTED_MODULE_0__["render"],
-  _Field_vue_vue_type_template_id_45f4b41a__WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
-  false,
-  null,
-  null,
-  null
-  
-)
-
-/* hot reload */
-if (false) { var api; }
-component.options.__file = "src/Components/Field.vue"
-/* harmony default export */ __webpack_exports__["default"] = (component.exports);
-
-/***/ }),
-
-/***/ "./src/Components/Field.vue?vue&type=script&lang=js":
-/*!**********************************************************!*\
-  !*** ./src/Components/Field.vue?vue&type=script&lang=js ***!
-  \**********************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_babel_loader_lib_index_js_node_modules_vue_loader_lib_index_js_vue_loader_options_Field_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../node_modules/babel-loader/lib!../../node_modules/vue-loader/lib??vue-loader-options!./Field.vue?vue&type=script&lang=js */ "./node_modules/babel-loader/lib/index.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/Field.vue?vue&type=script&lang=js");
-/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_node_modules_vue_loader_lib_index_js_vue_loader_options_Field_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_0__["default"]); 
-
-/***/ }),
-
-/***/ "./src/Components/Field.vue?vue&type=style&index=0&lang=css":
-/*!******************************************************************!*\
-  !*** ./src/Components/Field.vue?vue&type=style&index=0&lang=css ***!
-  \******************************************************************/
-/*! no static exports found */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_vue_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_vue_loader_lib_index_js_vue_loader_options_Field_vue_vue_type_style_index_0_lang_css__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../node_modules/vue-style-loader!../../node_modules/css-loader!../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../node_modules/vue-loader/lib??vue-loader-options!./Field.vue?vue&type=style&index=0&lang=css */ "./node_modules/vue-style-loader/index.js!./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/Field.vue?vue&type=style&index=0&lang=css");
-/* harmony import */ var _node_modules_vue_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_vue_loader_lib_index_js_vue_loader_options_Field_vue_vue_type_style_index_0_lang_css__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_vue_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_vue_loader_lib_index_js_vue_loader_options_Field_vue_vue_type_style_index_0_lang_css__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _node_modules_vue_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_vue_loader_lib_index_js_vue_loader_options_Field_vue_vue_type_style_index_0_lang_css__WEBPACK_IMPORTED_MODULE_0__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _node_modules_vue_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_vue_loader_lib_index_js_vue_loader_options_Field_vue_vue_type_style_index_0_lang_css__WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
- /* harmony default export */ __webpack_exports__["default"] = (_node_modules_vue_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_vue_loader_lib_index_js_vue_loader_options_Field_vue_vue_type_style_index_0_lang_css__WEBPACK_IMPORTED_MODULE_0___default.a); 
-
-/***/ }),
-
-/***/ "./src/Components/Field.vue?vue&type=template&id=45f4b41a":
-/*!****************************************************************!*\
-  !*** ./src/Components/Field.vue?vue&type=template&id=45f4b41a ***!
-  \****************************************************************/
-/*! exports provided: render, staticRenderFns */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Field_vue_vue_type_template_id_45f4b41a__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../node_modules/vue-loader/lib??vue-loader-options!./Field.vue?vue&type=template&id=45f4b41a */ "./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/Field.vue?vue&type=template&id=45f4b41a");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Field_vue_vue_type_template_id_45f4b41a__WEBPACK_IMPORTED_MODULE_0__["render"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Field_vue_vue_type_template_id_45f4b41a__WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
-
-
-
-/***/ }),
-
 /***/ "./src/Components/Game.vue":
 /*!*********************************!*\
   !*** ./src/Components/Game.vue ***!
@@ -72419,6 +72420,162 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Game_vue_vue_type_template_id_915111fc__WEBPACK_IMPORTED_MODULE_0__["render"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Game_vue_vue_type_template_id_915111fc__WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
+
+/***/ }),
+
+/***/ "./src/Components/GameCanvas.vue":
+/*!***************************************!*\
+  !*** ./src/Components/GameCanvas.vue ***!
+  \***************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _GameCanvas_vue_vue_type_template_id_41eae4fa__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./GameCanvas.vue?vue&type=template&id=41eae4fa */ "./src/Components/GameCanvas.vue?vue&type=template&id=41eae4fa");
+/* harmony import */ var _GameCanvas_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./GameCanvas.vue?vue&type=script&lang=js */ "./src/Components/GameCanvas.vue?vue&type=script&lang=js");
+/* empty/unused harmony star reexport *//* harmony import */ var _GameCanvas_vue_vue_type_style_index_0_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./GameCanvas.vue?vue&type=style&index=0&lang=css */ "./src/Components/GameCanvas.vue?vue&type=style&index=0&lang=css");
+/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__["default"])(
+  _GameCanvas_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"],
+  _GameCanvas_vue_vue_type_template_id_41eae4fa__WEBPACK_IMPORTED_MODULE_0__["render"],
+  _GameCanvas_vue_vue_type_template_id_41eae4fa__WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  null,
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "src/Components/GameCanvas.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./src/Components/GameCanvas.vue?vue&type=script&lang=js":
+/*!***************************************************************!*\
+  !*** ./src/Components/GameCanvas.vue?vue&type=script&lang=js ***!
+  \***************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_node_modules_vue_loader_lib_index_js_vue_loader_options_GameCanvas_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../node_modules/babel-loader/lib!../../node_modules/vue-loader/lib??vue-loader-options!./GameCanvas.vue?vue&type=script&lang=js */ "./node_modules/babel-loader/lib/index.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/GameCanvas.vue?vue&type=script&lang=js");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_node_modules_vue_loader_lib_index_js_vue_loader_options_GameCanvas_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./src/Components/GameCanvas.vue?vue&type=style&index=0&lang=css":
+/*!***********************************************************************!*\
+  !*** ./src/Components/GameCanvas.vue?vue&type=style&index=0&lang=css ***!
+  \***********************************************************************/
+/*! no static exports found */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_vue_loader_lib_index_js_vue_loader_options_GameCanvas_vue_vue_type_style_index_0_lang_css__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../node_modules/vue-style-loader!../../node_modules/css-loader!../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../node_modules/vue-loader/lib??vue-loader-options!./GameCanvas.vue?vue&type=style&index=0&lang=css */ "./node_modules/vue-style-loader/index.js!./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/GameCanvas.vue?vue&type=style&index=0&lang=css");
+/* harmony import */ var _node_modules_vue_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_vue_loader_lib_index_js_vue_loader_options_GameCanvas_vue_vue_type_style_index_0_lang_css__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_vue_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_vue_loader_lib_index_js_vue_loader_options_GameCanvas_vue_vue_type_style_index_0_lang_css__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _node_modules_vue_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_vue_loader_lib_index_js_vue_loader_options_GameCanvas_vue_vue_type_style_index_0_lang_css__WEBPACK_IMPORTED_MODULE_0__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _node_modules_vue_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_vue_loader_lib_index_js_vue_loader_options_GameCanvas_vue_vue_type_style_index_0_lang_css__WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
+ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_vue_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_vue_loader_lib_index_js_vue_loader_options_GameCanvas_vue_vue_type_style_index_0_lang_css__WEBPACK_IMPORTED_MODULE_0___default.a); 
+
+/***/ }),
+
+/***/ "./src/Components/GameCanvas.vue?vue&type=template&id=41eae4fa":
+/*!*********************************************************************!*\
+  !*** ./src/Components/GameCanvas.vue?vue&type=template&id=41eae4fa ***!
+  \*********************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_GameCanvas_vue_vue_type_template_id_41eae4fa__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../node_modules/vue-loader/lib??vue-loader-options!./GameCanvas.vue?vue&type=template&id=41eae4fa */ "./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/GameCanvas.vue?vue&type=template&id=41eae4fa");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_GameCanvas_vue_vue_type_template_id_41eae4fa__WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_GameCanvas_vue_vue_type_template_id_41eae4fa__WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
+
+/***/ }),
+
+/***/ "./src/Components/Menu.vue":
+/*!*********************************!*\
+  !*** ./src/Components/Menu.vue ***!
+  \*********************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _Menu_vue_vue_type_template_id_06647c22__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Menu.vue?vue&type=template&id=06647c22 */ "./src/Components/Menu.vue?vue&type=template&id=06647c22");
+/* harmony import */ var _Menu_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Menu.vue?vue&type=script&lang=js */ "./src/Components/Menu.vue?vue&type=script&lang=js");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+  _Menu_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"],
+  _Menu_vue_vue_type_template_id_06647c22__WEBPACK_IMPORTED_MODULE_0__["render"],
+  _Menu_vue_vue_type_template_id_06647c22__WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  null,
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "src/Components/Menu.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./src/Components/Menu.vue?vue&type=script&lang=js":
+/*!*********************************************************!*\
+  !*** ./src/Components/Menu.vue?vue&type=script&lang=js ***!
+  \*********************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_node_modules_vue_loader_lib_index_js_vue_loader_options_Menu_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../node_modules/babel-loader/lib!../../node_modules/vue-loader/lib??vue-loader-options!./Menu.vue?vue&type=script&lang=js */ "./node_modules/babel-loader/lib/index.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/Menu.vue?vue&type=script&lang=js");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_node_modules_vue_loader_lib_index_js_vue_loader_options_Menu_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./src/Components/Menu.vue?vue&type=template&id=06647c22":
+/*!***************************************************************!*\
+  !*** ./src/Components/Menu.vue?vue&type=template&id=06647c22 ***!
+  \***************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Menu_vue_vue_type_template_id_06647c22__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../node_modules/vue-loader/lib??vue-loader-options!./Menu.vue?vue&type=template&id=06647c22 */ "./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/Menu.vue?vue&type=template&id=06647c22");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Menu_vue_vue_type_template_id_06647c22__WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Menu_vue_vue_type_template_id_06647c22__WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
 
 
 

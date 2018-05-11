@@ -1,9 +1,9 @@
 <template>
 	<div class="game">
-		<Field ref="field"
+		<GameCanvas ref="canvas"
 			v-bind:palette="palette"
-			v-bind:field="field"
-			v-bind:selectedColor="selectedColor"></Field>
+			v-bind:image="image"
+			v-bind:selectedColor="selectedColor"></GameCanvas>
 		<ColorPicker
 			v-bind:palette="palette"
 			v-bind:selectedColor="selectedColor"
@@ -14,12 +14,12 @@
 <script>
 
 import Tinycolor from "tinycolor2";
-import Field from './Field.vue';
+import GameCanvas from './GameCanvas.vue';
 import ColorPicker from './ColorPicker.vue';
 
 export default {
 	props: {
-		field: {
+		image: {
 			type: Object,
 			default: function () { return {}; }
 		}
@@ -32,28 +32,28 @@ export default {
 	},
 	created: function () {
 
-		// generate random pixel field
+		// generate random pixel image
 		// @todo remove this
-		var field = {
+		var image = {
 			height : 30,
 			width : 40,
 			data : [],
 			colored : []
 		};
 		var paletteColorsCount = 10;
-		for (var y=0;y<field.height;y++) {
-			field.data.push([]);
-			field.colored.push([]);
-			for (var x=0;x<field.width;x++) {
+		for (var y=0;y<image.height;y++) {
+			image.data.push([]);
+			image.colored.push([]);
+			for (var x=0;x<image.width;x++) {
 				let color = Math.floor(Math.random()*paletteColorsCount);
-				field.data[y].push( (Math.random()>0.5) ? color : -1 );
-				field.colored[y].push(0);
+				image.data[y].push( (Math.random()>0.5) ? color : -1 );
+				image.colored[y].push(0);
 			}
 		}
 		//yes, i know about vue warning
-		this.field = field;
+		this.image = image;
 
-		// @todo generate pixels field and palette from images, not randomly 
+		// @todo generate pixels image and palette from images, not randomly 
 		for (var i = 0; i < paletteColorsCount;i++) {
 			let randColor = Tinycolor.random();
 			this.palette.push(randColor);
@@ -61,7 +61,7 @@ export default {
 
   	},
   	mounted: function () {
-		this.$refs.field.render();
+		this.$refs.canvas.render();
   	},
   	methods: {
   		changeColor:function (newColorIndex) {
@@ -69,7 +69,7 @@ export default {
   		}
   	},
 	components: {
-		Field, ColorPicker
+		GameCanvas, ColorPicker
 	}
 }
 

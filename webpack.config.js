@@ -9,6 +9,7 @@ module.exports = {
 	entry: {
 		libs:"./src/Libs.js",
 		main:"./src/Main.js",
+		generator:"./src/Generator.js"
 	},
 	output: {
 		path: path.resolve(__dirname, 'public'),
