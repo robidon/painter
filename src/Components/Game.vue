@@ -34,7 +34,7 @@ export default {
 
 		// generate random pixel image
 		// @todo remove this
-		var image = {
+		/*var image = {
 			height : 30,
 			width : 40,
 			data : [],
@@ -57,7 +57,7 @@ export default {
 		for (var i = 0; i < paletteColorsCount;i++) {
 			let randColor = Tinycolor.random();
 			this.palette.push(randColor);
-		}
+		}*/
 
   	},
   	mounted: function () {

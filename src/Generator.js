@@ -1,46 +1,43 @@
 import Vue from "vue";
+import Tinycolor from "tinycolor2"; 
 import RgbQuant from "rgbquant";
 
 new Vue({
   el: '#app',
+  data:{
+  	palette:[]
+  },
   created: function () {
+		var T = this;
 		var img = new Image();
-		img.src = 'i/man.jpg';
+		img.src = 'i/cat.png';
 		img.onload = function() {
 		  draw(this);
 		};
 		function draw(img) {
-		  	var canvas = document.getElementById('canvas');
-		  	var ctx = canvas.getContext('2d');
-			canvas.height = 50;
-			canvas.width = Math.min(50, canvas.height/img.height*img.width);
-			var size = 1,
-			    w = canvas.width / size,
-			    h = canvas.height / size;
+		  	var sourceCanvas = document.getElementById('sourceCanvas');
+		  	var pixelatedCanvas = document.getElementById('pixelatedCanvas');
+		  	var resultCanvas = document.getElementById('resultCanvas');
 
-			// draw the original image at a fraction of the final size
-			ctx.drawImage(img, 0, 0, w, h);
 
-			// turn off image aliasing
-			ctx.msImageSmoothingEnabled = false;
-			ctx.mozImageSmoothingEnabled = false;
-			ctx.webkitImageSmoothingEnabled = false;
-			ctx.imageSmoothingEnabled = false;
+			// draw original large scale image
+		  	var sourceContext = sourceCanvas.getContext('2d');
+		  	sourceCanvas.width = pixelatedCanvas.width = 150;
+		  	sourceCanvas.height = pixelatedCanvas.height = img.height * sourceCanvas.width / img.width;
+		  	sourceContext.drawImage(img,0,0,sourceCanvas.width,sourceCanvas.height);
 
-			// enlarge the minimized image to full size    
-			ctx.drawImage(canvas, 0, 0, w, h, 0, 0, canvas.width, canvas.height);
-			
-			var myImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-			
-			// reduce palette
-			for(var y = 0;y<myImageData.height;y++) {
-				for (var x = 0;x<myImageData.width;x++) {
 
-				}
-			}
-			// options with defaults (not required)
+			//draw result canvas
+		  	var resultContext = resultCanvas.getContext('2d');
+			var size = 2,
+			    w = Math.floor(pixelatedCanvas.width / size),
+			    h = Math.floor(pixelatedCanvas.height / size);
+			resultCanvas.width = w;
+			resultCanvas.height = h;
+			resultContext.drawImage(img, 0, 0, w, h);
+			var sourceImageData = resultContext.getImageData(0, 0, w, h);
 			var opts = {
-			    colors: 3,             	 // desired palette size
+			    colors: 10,              // desired palette size
 			    method: 2,               // histogram method, 2: min-population threshold within subregions; 1: global top-population
 			    boxSize: [64,64],        // subregion dims (if method = 2)
 			    boxPxls: 2,              // min-population threshold (if method = 2)
@@ -55,38 +52,75 @@ new Vue({
 			    cacheFreq: 10,           // min color occurance count needed to qualify for caching
 			    colorDist: "euclidean",  // method used to determine color distance, can also be "manhattan"
 			};
-
 			var q = new RgbQuant(opts);
 
 			// analyze histograms
-			q.sample(myImageData);
+			q.sample(sourceImageData);
 
 			// build palette
 			var pal = q.palette();
 
 			// reduce images
-			var out = q.reduce(myImageData);
-			//console.log(img);
-			//console.log(out);
-			var imgData=ctx.createImageData(myImageData.width,myImageData.height);
-			for (var i=0;i<imgData.data.length;i+=4)
+			var out = q.reduce(sourceImageData);
+			for (var i=0;i<sourceImageData.data.length;i+=4)
 			{
-			  imgData.data[i+0]=out[i+0];
-			  imgData.data[i+1]=out[i+1];
-			  imgData.data[i+2]=out[i+2];
-			  imgData.data[i+3]=out[i+3];
+			  sourceImageData.data[i+0]=out[i+0];
+			  sourceImageData.data[i+1]=out[i+1];
+			  sourceImageData.data[i+2]=out[i+2];
+			  sourceImageData.data[i+3]=out[i+3];
 			}
-			ctx.putImageData(imgData,0,0);
- 
+			resultContext.putImageData(sourceImageData,0,0);
 
-			//ctx.drawImage(out, 0, 0, w, h, 0, 0, canvas.width, canvas.height);
+			// draw large scale pixelated image
+		  	var pixelatedContext = pixelatedCanvas.getContext('2d');
+			pixelatedContext.msImageSmoothingEnabled = false;
+			pixelatedContext.mozImageSmoothingEnabled = false;
+			pixelatedContext.webkitImageSmoothingEnabled = false;
+			pixelatedContext.imageSmoothingEnabled = false;
+			pixelatedContext.drawImage(resultCanvas, 0, 0, w, h, 0, 0, pixelatedCanvas.width, pixelatedCanvas.height);
 
+			// render palette
+			var newpalette = [];
+			for (var i=0;i<pal.length;i+=4) {
+				let color = Tinycolor({r:pal[i],g:pal[i+1],b:pal[i+2],a:pal[i+3]/255});
+				newpalette.push(color.toHex8String());
+			}
+			T.palette = newpalette;
 
-			var data = Array.prototype.slice.call(out);
-			var version = 1;
-			data.unshift(version, myImageData.width, myImageData.height);
-			var str = JSON.stringify(data);
-			console.log(str);
+			var resultImageObject = {
+				w:w,
+				h:h,
+				palette:newpalette,
+				data:[]
+			}
+			for(var i=0;i<sourceImageData.data.length;i+=4) {
+				let found = false;
+				if ((sourceImageData.data[i]===0) && (sourceImageData.data[i+1]===0) && (sourceImageData.data[i+2]===0) && (sourceImageData.data[i+3]===0)) {
+					resultImageObject.data.push(0);
+					continue;
+				}
+				for (var c=0;c<pal.length;c+=4) {
+					if (
+						(sourceImageData.data[i] === pal[c]) &&
+						(sourceImageData.data[i+1] === pal[c+1]) &&
+						(sourceImageData.data[i+2] === pal[c+2]) &&
+						(sourceImageData.data[i+3] === pal[c+3])
+					) {
+						resultImageObject.data.push(Math.floor(c/4)+1);
+						found = true;
+						break;
+					}
+				}
+				if (!found) {
+					console.log('what?');
+					console.log([sourceImageData.data[i],sourceImageData.data[i+1],sourceImageData.data[i+2],sourceImageData.data[i+3]]);
+					break;
+				}
+			}
+			console.log(resultImageObject);
+			//console.log(sourceImageData);
+			console.log(JSON.stringify(resultImageObject));
+
 		}
 	}
 })

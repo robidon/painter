@@ -1,57 +1,41 @@
 <template>
 	<div id="app">
-		<Menu v-if="selectedImageIndex === -1" v-bind:images="images"></Menu>
+		<ImagesMenu v-if="selectedImageIndex === -1" v-bind:images="images" v-on:select="select"></ImagesMenu>
 		<Game v-if="selectedImageIndex !== -1" v-bind:image="images[selectedImageIndex]"></Game>
 	</div>
 </template>
 
 <script>
 import Game from './Components/Game.vue'
-import Menu from './Components/Menu.vue'
+import ImagesMenu from './Components/ImagesMenu.vue'
 
 export default {
 	data: function () {
 		return {
 			selectedImageIndex: -1,
-			images: []
+			images: [],
+			imageNames: []
 		}
 	},
 	created: function () {
-		this.images = [
-			{
-				width:5,
-				height:5,
-				data:[[0,0,0,0,0],
-					  [0,1,1,1,0],
-					  [0,1,1,2,0],
-					  [0,1,2,3,0],
-					  [0,0,0,0,0]],
-				colored:[[0,0,0,0,0],
-						 [0,0,0,0,0],
-						 [0,0,0,0,0],
-						 [0,0,0,0,0],
-						 [0,0,0,0,0]],
-				palette:["#ff0000","#00ff00","#0000ff"]
-			},
-			{
-				width:5,
-				height:5,
-				data:[[0,0,0,0,0],
-					  [0,2,1,1,0],
-					  [0,1,2,3,0],
-					  [0,1,3,2,0],
-					  [0,0,0,0,0]],
-				colored:[[0,0,0,0,0],
-						 [0,0,0,0,0],
-						 [0,0,0,0,0],
-						 [0,0,0,0,0],
-						 [0,0,0,0,0]],
-				palette:["#f00000","#00f000","#0000f0"]
-			}
-		];
+		this.imageNames = ['i/Betta-PNG-Photos.json', 'i/cat.json'];
+		this.images=[];
+		for(var i =0;i<this.imageNames.length;i++) {
+			fetch(this.imageNames[i])
+				.then(r => r.json())
+				.then(json=>{
+					this.images.push(json);
+				});
+		}
+	},
+	methods:{
+		select:function(index) {
+			console.log('aaa');
+			this.selectedImageIndex = index;
+		}
 	},
 	components: {
-		Game, Menu
+		Game, ImagesMenu
 	}
 }
 
