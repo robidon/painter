@@ -10,7 +10,7 @@ new Vue({
   created: function () {
 		var T = this;
 		var img = new Image();
-		img.src = 'i/cat.png';
+		img.src = 'i/Pile-of-Skulls-PNG-Clipart.png';
 		img.onload = function() {
 		  draw(this);
 		};
@@ -29,7 +29,7 @@ new Vue({
 
 			//draw result canvas
 		  	var resultContext = resultCanvas.getContext('2d');
-			var size = 2,
+			var size = 1,
 			    w = Math.floor(pixelatedCanvas.width / size),
 			    h = Math.floor(pixelatedCanvas.height / size);
 			resultCanvas.width = w;

@@ -102,7 +102,7 @@ __webpack_require__.r(__webpack_exports__);
 		};
 	},
 	created: function () {
-		this.imageNames = ['i/Betta-PNG-Photos.json', 'i/cat.json'];
+		this.imageNames = ['i/Betta-PNG-Photos.json', 'i/cat.json', 'i/Donkey-Kong-PNG-Photos.json', 'i/Leopard-PNG-Free-Download.json', 'i/Leopard-Transparent-Background.json', 'i/Pile-of-Skulls-PNG-Clipart.json'];
 		this.images = [];
 		for (var i = 0; i < this.imageNames.length; i++) {
 			fetch(this.imageNames[i]).then(r => r.json()).then(json => {
