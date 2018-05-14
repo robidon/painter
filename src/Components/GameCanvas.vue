@@ -1,5 +1,5 @@
 <template>
-	<div id="image">
+	<div ref="image">
 	</div>
 </template>
 
@@ -49,7 +49,7 @@ export default {
 			app.renderer.autoResize = true;
 			app.renderer.resize(window.innerWidth, window.innerHeight);
 
-			document.getElementById('image').appendChild(app.view);
+			this.$refs['image'].appendChild(app.view);
 
 			var colors = [],
 				grayColors = [],
@@ -65,8 +65,8 @@ export default {
 			var viewport = new Viewport({
 			    screenWidth: window.innerWidth,
 			    screenHeight: window.innerHeight,
-			    worldWidth: this.image.width*rectSize,
-			    worldHeight: this.image.height*rectSize
+			    worldWidth: this.image.w*rectSize,
+			    worldHeight: this.image.h*rectSize
 			});
 
 			app.stage.addChild(viewport);
@@ -80,7 +80,7 @@ export default {
 			    .clamp({}) // don't allow to drag outside
 			    .clampZoom({ // don't allow to zoom too much
 			    	minWidth:400,
-			    	maxWidth:this.image.width*rectSize*1.5
+			    	maxWidth:this.image.w*rectSize*1.5
 			    })
 			    .fit();
 
@@ -127,21 +127,21 @@ export default {
 			var background = new PIXI.Graphics();
 			var backgroundZoomed = new PIXI.Graphics();
 			var front = new PIXI.Graphics();
-			for (var y=0;y<this.image.height;y++) {
-				for (var x=0;x<this.image.width;x++) {
+			for (var y=0;y<this.image.h;y++) {
+				for (var x=0;x<this.image.w;x++) {
 
-					if ( this.image.data[y][x] === -1 ) continue;
+					if ( this.image.data[y*this.image.w+x]-1 === -1 ) continue;
 					
 					pixelsToColorCount ++;
 
-					backgroundZoomed.beginFill(lightGrayColors[this.image.data[y][x]]);
+					backgroundZoomed.beginFill(lightGrayColors[this.image.data[y*this.image.w+x]-1]);
 					backgroundZoomed.drawRect(x*rectSize,y*rectSize,rectSize-1,rectSize-1);
 					backgroundZoomed.endFill();
-					let txt = new PIXI.Text(this.image.data[y][x]+1, {fontFamily : 'Verdana', fontSize: 24, fill : darkGrayColors[this.image.data[y][x]], align : 'center'});
+					let txt = new PIXI.Text(this.image.data[y*this.image.w+x], {fontFamily : 'Verdana', fontSize: 24, fill : darkGrayColors[this.image.data[y*this.image.w+x]-1], align : 'center'});
 					txt.x = (x+0.5)*rectSize-txt.width/2;
 					txt.y = (y+0.5)*rectSize-txt.height/2;
 					backgroundZoomed.addChild(txt);
-					background.beginFill(grayColors[this.image.data[y][x]]);
+					background.beginFill(grayColors[this.image.data[y*this.image.w+x]-1]);
 					background.drawRect(x*rectSize,y*rectSize,rectSize,rectSize);
 					background.endFill();
 				}
@@ -160,12 +160,16 @@ export default {
 			var lastColoredPixelX = -1,
 				lastColoredPixelY = -1,
 				lastColoredPixelTime = -1000;
+
+			if (!T.image.colored) {
+				T.image.colored = [].fill(0, T.image.h*T.image.w);
+			}
 			var fillPixel = function(x, y, flood = false, floodColor = null) {
-				if (x<0||y<0||x>=T.image.width||y>=T.image.height) return;
-				if (T.image.data[y][x] === -1) return;
-				if (T.image.data[y][x] !== T.selectedColor) {
+				if (x<0||y<0||x>=T.image.w||y>=T.image.h) return;
+				if (T.image.data[y*T.image.w+x]-1 === -1) return;
+				if (T.image.data[y*T.image.w+x]-1 !== T.selectedColor) {
 					if (!flood) return;
-					if (T.image.data[y][x] !== floodColor) return;
+					if (T.image.data[y*T.image.w+x]-1 !== floodColor) return;
 				}
 
 				if (!flood) {
@@ -183,9 +187,9 @@ export default {
 					lastColoredPixelX = x;
 					lastColoredPixelY = y;
 				}
-
-				if (T.image.colored[y][x] === 1) return;
-
+				
+				if (T.image.colored[y*T.image.w+x] === 1) return;
+				
 				if (flood) {
 					var floodTimeout = setTimeout(function () {
 						fillPixel(x-1, y, true, floodColor);
@@ -196,14 +200,15 @@ export default {
 				}
 
 
-				T.image.colored[y][x] = 1;
+
+				T.image.colored[y*T.image.w+x] = 1;
 				coloredPixelsCount ++;
 
 				var endFill = function () {
 
 					front.cacheAsBitmap = false;
 			
-					front.beginFill(colors[T.image.data[y][x]]);
+					front.beginFill(colors[T.image.data[y*T.image.w+x]-1]);
 					front.drawRect(x*rectSize,y*rectSize,rectSize,rectSize);
 					front.endFill();
 			
@@ -222,14 +227,14 @@ export default {
 
 				
 				mask.isMask = true;
-				mask.beginFill(colors[T.image.data[y][x]]);
+				mask.beginFill(colors[T.image.data[y*T.image.w+x]-1]);
 				mask.drawRect(x*rectSize,y*rectSize,rectSize,rectSize);
 				mask.x = mask.y = 0;
 				mask.endFill();
 
 				viewport.addChild(mask);
 
-				clip.beginFill(colors[T.image.data[y][x]]);
+				clip.beginFill(colors[T.image.data[y*T.image.w+x]-1]);
 				clip.drawCircle( 0, 0, rectSize);
 				clip.endFill();
 				clip.x = (x+0.5) * rectSize;
@@ -246,7 +251,7 @@ export default {
 				let point = e.data.getLocalPosition(viewport);
 				let x = Math.floor(point.x/rectSize);
 				let y = Math.floor(point.y/rectSize);
-				if (x >= 0 && x < T.image.width && y >=0 && y < T.image.height) {
+				if (x >= 0 && x < T.image.w && y >=0 && y < T.image.h) {
 					fillPixel(x,y);
 				}
 			};

@@ -24,9 +24,17 @@ export default {
 			default: function () { return {}; }
 		}
 	},
+	computed: {
+		palette: function () {
+			var newPalette = [];
+			for (var i=0; i<this.image.palette.length; i++) {
+				newPalette.push(Tinycolor(this.image.palette[i]));
+			}
+			return newPalette;
+		}
+	},
 	data: function () {
 		return {
-			palette:[],
 			selectedColor:0
 		}
 	},
