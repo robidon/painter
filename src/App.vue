@@ -8,6 +8,7 @@
 <script>
 import Game from './Components/Game.vue'
 import ImagesMenu from './Components/ImagesMenu.vue'
+import Vue from 'vue';
 
 export default {
 	data: function () {
@@ -18,18 +19,25 @@ export default {
 		}
 	},
 	created: function () {
-		this.imageNames = ['i/Betta-PNG-Photos.json',
-			'i/cat.json',
-			'i/Donkey-Kong-PNG-Photos.json',
-			'i/Leopard-PNG-Free-Download.json',
-			'i/Leopard-Transparent-Background.json',
-			'i/Pile-of-Skulls-PNG-Clipart.json'];
-		this.images=[];
-		for(var i =0;i<this.imageNames.length;i++) {
-			fetch(this.imageNames[i])
+		
+		this.images = [
+			{id:'Betta-PNG-Photos'},
+			{id:'cat'},
+			{id:'Donkey-Kong-PNG-Photos'},
+			{id:'Leopard-PNG-Free-Download'},
+			{id:'Leopard-Transparent-Background'},
+			{id:'Pile-of-Skulls-PNG-Clipart'}
+		];
+		for(let i =0;i<this.images.length;i++) {
+			fetch("i/"+this.images[i].id+".json")
 				.then(r => r.json())
 				.then(json=>{
-					this.images.push(json);
+					let image = Object.assign({}, this.images[i], json);
+					
+					// prepare object here
+
+					image.loaded = true;
+					this.images.splice(i, 1, image); 
 				});
 		}
 	},
