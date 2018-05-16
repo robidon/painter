@@ -85,7 +85,7 @@ export default {
 			// check regulary if scale is large enough to change view
 			// @todo clearInterval on destroy
 			setInterval(function () {
-				if (viewport.transform.scale._x>0.5) {
+				if (viewport.transform.scale._x>0.3) {
 					background.visible = false;
 					backgroundZoomed.visible = true;
 				} else {
@@ -97,8 +97,16 @@ export default {
 
 			// draw images
 
-			var background = new PIXI.Graphics();
+			//var background = new PIXI.Graphics();
+
+			var basetexture = new PIXI.BaseTexture(this.image.canvases.light, PIXI.SCALE_MODES.NEAREST, 1/rectSize);
+			var texture = new PIXI.Texture(basetexture);
+			var background = new PIXI.Sprite(texture);
+			var bckZoomedSprite = new PIXI.Sprite(texture);
+
+			//background.
 			var backgroundZoomed = new PIXI.Graphics();
+			backgroundZoomed.addChild(bckZoomedSprite);
 			var front = new PIXI.Graphics();
 			for (var y=0;y<this.image.height;y++) {
 				for (var x=0;x<this.image.width;x++) {
@@ -107,28 +115,22 @@ export default {
 					
 					pixelsToColorCount ++;
 
-					backgroundZoomed.beginFill(this.image.palettes.light[this.image.pixels.clean[x][y]-1].toNumber());
-					backgroundZoomed.drawRect(x*rectSize,y*rectSize,rectSize-1,rectSize-1);
-					backgroundZoomed.endFill();
 					let txt = new PIXI.Text(this.image.pixels.clean[x][y], {fontFamily : 'Verdana', fontSize: 24, fill : this.image.palettes.dark[this.image.pixels.clean[x][y]-1].toNumber(), align : 'center'});
 					txt.x = (x+0.5)*rectSize-txt.width/2;
 					txt.y = (y+0.5)*rectSize-txt.height/2;
 					backgroundZoomed.addChild(txt);
-					background.beginFill(this.image.palettes.light[this.image.pixels.clean[x][y]-1].toNumber());
-					background.drawRect(x*rectSize,y*rectSize,rectSize,rectSize);
-					background.endFill();
+
 				}
 			}
 
 			// now we can cache rendered maps
-
-			background.cacheAsBitmap = true;
 			backgroundZoomed.cacheAsBitmap = true;
 
-			backgroundZoomed.visible = false;
 			viewport.addChild(background);
 			viewport.addChild(backgroundZoomed);
 			viewport.addChild(front);
+
+			backgroundZoomed.visible = false;
 
 			var lastColoredPixelX = -1,
 				lastColoredPixelY = -1,
