@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<div class="ImagesMenu">
 		<ImagesMenuItem v-for="(image, index) in images" v-bind:image="image" v-on:select="select(index)"></ImagesMenuItem>
 	</div>
 </template>
@@ -27,3 +27,9 @@ export default {
 }
 
 </script>
+
+<style>
+	.ImagesMenu {
+		padding:3px;
+	}
+</style>

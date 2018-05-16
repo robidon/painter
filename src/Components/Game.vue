@@ -26,11 +26,11 @@ export default {
 	},
 	computed: {
 		palette: function () {
-			var newPalette = [];
-			for (var i=0; i<this.image.palette.length; i++) {
-				newPalette.push(Tinycolor(this.image.palette[i]));
-			}
-			return newPalette;
+			/*var newPalette = [];
+			for (var i=0; i<this.image.palettes.colors.length; i++) {
+				newPalette.push(Tinycolor(this.image.palettes.colors[i]));
+			}*/
+			return this.image.palettes.colors;
 		}
 	},
 	data: function () {
@@ -39,33 +39,6 @@ export default {
 		}
 	},
 	created: function () {
-
-		// generate random pixel image
-		// @todo remove this
-		/*var image = {
-			height : 30,
-			width : 40,
-			data : [],
-			colored : []
-		};
-		var paletteColorsCount = 10;
-		for (var y=0;y<image.height;y++) {
-			image.data.push([]);
-			image.colored.push([]);
-			for (var x=0;x<image.width;x++) {
-				let color = Math.floor(Math.random()*paletteColorsCount);
-				image.data[y].push( (Math.random()>0.5) ? color : -1 );
-				image.colored[y].push(0);
-			}
-		}
-		//yes, i know about vue warning
-		this.image = image;
-
-		// @todo generate pixels image and palette from images, not randomly 
-		for (var i = 0; i < paletteColorsCount;i++) {
-			let randColor = Tinycolor.random();
-			this.palette.push(randColor);
-		}*/
 
   	},
   	mounted: function () {

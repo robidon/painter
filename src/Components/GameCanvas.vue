@@ -8,7 +8,9 @@
 import Viewport from "pixi-viewport";
 import Tinycolor from "tinycolor2";
 import {TweenLite} from "gsap";
-
+Tinycolor.prototype.toNumber = function() {
+        return (Math.round(this._r)<<16) + (Math.round(this._g)<<8) + (Math.round(this._b));
+}
 export default {
 	props: {
 		palette: {
@@ -51,11 +53,6 @@ export default {
 
 			this.$refs['image'].appendChild(app.view);
 
-			var colors = [],
-				grayColors = [],
-				lightGrayColors = [],
-				darkGrayColors = [];
-
 			var coloredPixelsCount = 0,
 				pixelsToColorCount = 0;
 
@@ -65,8 +62,8 @@ export default {
 			var viewport = new Viewport({
 			    screenWidth: window.innerWidth,
 			    screenHeight: window.innerHeight,
-			    worldWidth: this.image.w*rectSize,
-			    worldHeight: this.image.h*rectSize
+			    worldWidth: this.image.width*rectSize,
+			    worldHeight: this.image.height*rectSize
 			});
 
 			app.stage.addChild(viewport);
@@ -80,7 +77,7 @@ export default {
 			    .clamp({}) // don't allow to drag outside
 			    .clampZoom({ // don't allow to zoom too much
 			    	minWidth:400,
-			    	maxWidth:this.image.w*rectSize*1.5
+			    	maxWidth:this.image.width*rectSize*1.5
 			    })
 			    .fit();
 
@@ -98,50 +95,26 @@ export default {
 			},100);
 
 
-
-			// generate grayscale palettes
-
-			for (var i=0;i<this.palette.length;i++) {
-						
-				let r = this.palette[i]._r/255,
-					g = this.palette[i]._g/255,
-					b = this.palette[i]._b/255;
-			
-				colors.push(PIXI.utils.rgb2hex([r, g, b]));
-				
-				//desaturate 
-				r = (r+g+b)/3;
-				grayColors.push(PIXI.utils.rgb2hex([r/2+0.5, r/2+0.5, r/2+0.5]));
-				
-				//lighten
-				r = 1-((1-r)/5)
-				lightGrayColors.push(PIXI.utils.rgb2hex([r, r, r]));
-				
-				//darken
-				r = r - 0.5;
-				darkGrayColors.push(PIXI.utils.rgb2hex([r, r, r]));
-			}
-
 			// draw images
 
 			var background = new PIXI.Graphics();
 			var backgroundZoomed = new PIXI.Graphics();
 			var front = new PIXI.Graphics();
-			for (var y=0;y<this.image.h;y++) {
-				for (var x=0;x<this.image.w;x++) {
+			for (var y=0;y<this.image.height;y++) {
+				for (var x=0;x<this.image.width;x++) {
 
-					if ( this.image.data[y*this.image.w+x]-1 === -1 ) continue;
+					if ( this.image.pixels.clean[x][y]-1 === -1 ) continue;
 					
 					pixelsToColorCount ++;
 
-					backgroundZoomed.beginFill(lightGrayColors[this.image.data[y*this.image.w+x]-1]);
+					backgroundZoomed.beginFill(this.image.palettes.light[this.image.pixels.clean[x][y]-1].toNumber());
 					backgroundZoomed.drawRect(x*rectSize,y*rectSize,rectSize-1,rectSize-1);
 					backgroundZoomed.endFill();
-					let txt = new PIXI.Text(this.image.data[y*this.image.w+x], {fontFamily : 'Verdana', fontSize: 24, fill : darkGrayColors[this.image.data[y*this.image.w+x]-1], align : 'center'});
+					let txt = new PIXI.Text(this.image.pixels.clean[x][y], {fontFamily : 'Verdana', fontSize: 24, fill : this.image.palettes.dark[this.image.pixels.clean[x][y]-1].toNumber(), align : 'center'});
 					txt.x = (x+0.5)*rectSize-txt.width/2;
 					txt.y = (y+0.5)*rectSize-txt.height/2;
 					backgroundZoomed.addChild(txt);
-					background.beginFill(grayColors[this.image.data[y*this.image.w+x]-1]);
+					background.beginFill(this.image.palettes.light[this.image.pixels.clean[x][y]-1].toNumber());
 					background.drawRect(x*rectSize,y*rectSize,rectSize,rectSize);
 					background.endFill();
 				}
@@ -161,15 +134,12 @@ export default {
 				lastColoredPixelY = -1,
 				lastColoredPixelTime = -1000;
 
-			if (!T.image.colored) {
-				T.image.colored = [].fill(0, T.image.h*T.image.w);
-			}
 			var fillPixel = function(x, y, flood = false, floodColor = null) {
-				if (x<0||y<0||x>=T.image.w||y>=T.image.h) return;
-				if (T.image.data[y*T.image.w+x]-1 === -1) return;
-				if (T.image.data[y*T.image.w+x]-1 !== T.selectedColor) {
+				if (x<0||y<0||x>=T.image.width||y>=T.image.height) return;
+				if (T.image.pixels.clean[x][y]-1 === -1) return;
+				if (T.image.pixels.clean[x][y]-1 !== T.selectedColor) {
 					if (!flood) return;
-					if (T.image.data[y*T.image.w+x]-1 !== floodColor) return;
+					if (T.image.pixels.clean[x][y]-1 !== floodColor) return;
 				}
 
 				if (!flood) {
@@ -188,7 +158,7 @@ export default {
 					lastColoredPixelY = y;
 				}
 				
-				if (T.image.colored[y*T.image.w+x] === 1) return;
+				if (T.image.pixels.colored[x][y] === 1) return;
 				
 				if (flood) {
 					var floodTimeout = setTimeout(function () {
@@ -201,14 +171,14 @@ export default {
 
 
 
-				T.image.colored[y*T.image.w+x] = 1;
+				T.image.pixels.colored[x][y] = 1;
 				coloredPixelsCount ++;
 
 				var endFill = function () {
 
 					front.cacheAsBitmap = false;
 			
-					front.beginFill(colors[T.image.data[y*T.image.w+x]-1]);
+					front.beginFill(T.image.palettes.colors[T.image.pixels.clean[x][y]-1].toNumber());
 					front.drawRect(x*rectSize,y*rectSize,rectSize,rectSize);
 					front.endFill();
 			
@@ -227,15 +197,15 @@ export default {
 
 				
 				mask.isMask = true;
-				mask.beginFill(colors[T.image.data[y*T.image.w+x]-1]);
+				mask.beginFill(T.image.palettes.colors[T.image.pixels.clean[x][y]-1].toNumber());
 				mask.drawRect(x*rectSize,y*rectSize,rectSize,rectSize);
 				mask.x = mask.y = 0;
 				mask.endFill();
 
 				viewport.addChild(mask);
 
-				clip.beginFill(colors[T.image.data[y*T.image.w+x]-1]);
-				clip.drawCircle( 0, 0, rectSize);
+				clip.beginFill(T.image.palettes.colors[T.image.pixels.clean[x][y]-1].toNumber());
+				clip.drawCircle(0, 0, rectSize);
 				clip.endFill();
 				clip.x = (x+0.5) * rectSize;
 				clip.y = (y+0.5) * rectSize;
@@ -251,7 +221,7 @@ export default {
 				let point = e.data.getLocalPosition(viewport);
 				let x = Math.floor(point.x/rectSize);
 				let y = Math.floor(point.y/rectSize);
-				if (x >= 0 && x < T.image.w && y >=0 && y < T.image.h) {
+				if (x >= 0 && x < T.image.width && y >=0 && y < T.image.height) {
 					fillPixel(x,y);
 				}
 			};

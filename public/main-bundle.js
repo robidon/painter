@@ -82,7 +82,9 @@
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Components_Game_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Components/Game.vue */ "./src/Components/Game.vue");
 /* harmony import */ var _Components_ImagesMenu_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Components/ImagesMenu.vue */ "./src/Components/ImagesMenu.vue");
-/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js");
+/* harmony import */ var tinycolor2__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! tinycolor2 */ "./node_modules/tinycolor2/tinycolor.js");
+/* harmony import */ var tinycolor2__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(tinycolor2__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js");
 //
 //
 //
@@ -90,6 +92,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+
 
 
 
@@ -107,20 +110,90 @@ __webpack_require__.r(__webpack_exports__);
 
 		this.images = [{ id: 'Betta-PNG-Photos' }, { id: 'cat' }, { id: 'Donkey-Kong-PNG-Photos' }, { id: 'Leopard-PNG-Free-Download' }, { id: 'Leopard-Transparent-Background' }, { id: 'Pile-of-Skulls-PNG-Clipart' }];
 		for (let i = 0; i < this.images.length; i++) {
+			this.images[i].loaded = false;
 			fetch("i/" + this.images[i].id + ".json").then(r => r.json()).then(json => {
-				let image = Object.assign({}, this.images[i], json);
-
-				// prepare object here
-
-				image.loaded = true;
-				this.images.splice(i, 1, image);
+				this.setupImage(i, json);
 			});
 		}
 	},
 	methods: {
 		select: function (index) {
-			console.log('aaa');
 			this.selectedImageIndex = index;
+		},
+		setupImage: function (imageIndex, imageData) {
+
+			let image = {
+				id: this.images[imageIndex].id,
+				loaded: true,
+				rawdata: imageData,
+				width: imageData.width,
+				height: imageData.height,
+				palettes: {
+					colors: [],
+					gray: [],
+					light: [],
+					dark: []
+				},
+				pixels: {
+					clean: [],
+					colored: []
+				},
+				canvases: {
+					colors: {},
+					light: {},
+					colored: {}
+				}
+			};
+
+			for (var i = 0; i < imageData.palette.length; i++) {
+				var color = tinycolor2__WEBPACK_IMPORTED_MODULE_2___default()(imageData.palette[i]);
+				image.palettes.colors.push(color);
+				var g = (color.toRgb().r + color.toRgb().g + color.toRgb().b) / 3;
+				image.palettes.gray.push(tinycolor2__WEBPACK_IMPORTED_MODULE_2___default()({ r: g, b: g, g: g, a: color.toRgb().a }));
+				var lg = g = 255 - (255 - g) / 5;
+				image.palettes.light.push(tinycolor2__WEBPACK_IMPORTED_MODULE_2___default()({ r: lg, b: lg, g: lg, a: color.toRgb().a }));
+				var dg = lg - 150;
+				image.palettes.dark.push(tinycolor2__WEBPACK_IMPORTED_MODULE_2___default()({ r: dg, b: dg, g: dg, a: color.toRgb().a }));
+			}
+			for (var x = 0; x < image.width; x++) {
+				image.pixels.clean.push([]);
+				image.pixels.colored.push([]);
+				for (var y = 0; y < image.height; y++) {
+					image.pixels.clean[x].push(imageData.pixels[y * image.width + x]);
+					if (imageData.colored && typeof imageData.colored[y * image.width + x] !== "undefined") {
+						image.pixels.colored[x].push(imageData.pixels[y * image.width + x]);
+					} else {
+						image.pixels.colored[x].push(0);
+					}
+				}
+			}
+
+			var shadowCanvas = document.createElement('canvas');
+			shadowCanvas.width = image.width;
+			shadowCanvas.height = image.height;
+			var context = shadowCanvas.getContext('2d');
+
+			var imageData = context.createImageData(image.width, image.height);
+			var fillImageDataWithPalette = function (imageData, pixels, palette) {
+				for (var x = 0; x < imageData.width; x++) {
+					for (var y = 0; y < imageData.height; y++) {
+						if (pixels[x][y] == 0) {
+							imageData.data.fill(0, (y * imageData.width + x) * 4, (y * imageData.width + x) * 4 + 3);
+							continue;
+						}
+						var color = palette[pixels[x][y] - 1].toRgb();
+						imageData.data[(y * imageData.width + x) * 4] = color.r;
+						imageData.data[(y * imageData.width + x) * 4 + 1] = color.g;
+						imageData.data[(y * imageData.width + x) * 4 + 2] = color.b;
+						imageData.data[(y * imageData.width + x) * 4 + 3] = color.a * 255;
+					}
+				}
+			};
+			fillImageDataWithPalette(imageData, image.pixels.clean, image.palettes.light);
+
+			context.putImageData(imageData, 0, 0);
+			image.canvases.light = shadowCanvas;
+			this.images.splice(imageIndex, 1, image);
 		}
 	},
 	components: {
@@ -271,11 +344,11 @@ __webpack_require__.r(__webpack_exports__);
 	},
 	computed: {
 		palette: function () {
-			var newPalette = [];
-			for (var i = 0; i < this.image.palette.length; i++) {
-				newPalette.push(tinycolor2__WEBPACK_IMPORTED_MODULE_0___default()(this.image.palette[i]));
-			}
-			return newPalette;
+			/*var newPalette = [];
+   for (var i=0; i<this.image.palettes.colors.length; i++) {
+   	newPalette.push(Tinycolor(this.image.palettes.colors[i]));
+   }*/
+			return this.image.palettes.colors;
 		}
 	},
 	data: function () {
@@ -283,35 +356,7 @@ __webpack_require__.r(__webpack_exports__);
 			selectedColor: 0
 		};
 	},
-	created: function () {
-
-		// generate random pixel image
-		// @todo remove this
-		/*var image = {
-  	height : 30,
-  	width : 40,
-  	data : [],
-  	colored : []
-  };
-  var paletteColorsCount = 10;
-  for (var y=0;y<image.height;y++) {
-  	image.data.push([]);
-  	image.colored.push([]);
-  	for (var x=0;x<image.width;x++) {
-  		let color = Math.floor(Math.random()*paletteColorsCount);
-  		image.data[y].push( (Math.random()>0.5) ? color : -1 );
-  		image.colored[y].push(0);
-  	}
-  }
-  //yes, i know about vue warning
-  this.image = image;
-  		// @todo generate pixels image and palette from images, not randomly 
-  for (var i = 0; i < paletteColorsCount;i++) {
-  	let randColor = Tinycolor.random();
-  	this.palette.push(randColor);
-  }*/
-
-	},
+	created: function () {},
 	mounted: function () {
 		this.$refs.canvas.render();
 	},
@@ -352,7 +397,9 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-
+tinycolor2__WEBPACK_IMPORTED_MODULE_1___default.a.prototype.toNumber = function () {
+	return (Math.round(this._r) << 16) + (Math.round(this._g) << 8) + Math.round(this._b);
+};
 /* harmony default export */ __webpack_exports__["default"] = ({
 	props: {
 		palette: {
@@ -397,11 +444,6 @@ __webpack_require__.r(__webpack_exports__);
 
 			this.$refs['image'].appendChild(app.view);
 
-			var colors = [],
-			    grayColors = [],
-			    lightGrayColors = [],
-			    darkGrayColors = [];
-
 			var coloredPixelsCount = 0,
 			    pixelsToColorCount = 0;
 
@@ -411,8 +453,8 @@ __webpack_require__.r(__webpack_exports__);
 			var viewport = new pixi_viewport__WEBPACK_IMPORTED_MODULE_0___default.a({
 				screenWidth: window.innerWidth,
 				screenHeight: window.innerHeight,
-				worldWidth: this.image.w * rectSize,
-				worldHeight: this.image.h * rectSize
+				worldWidth: this.image.width * rectSize,
+				worldHeight: this.image.height * rectSize
 			});
 
 			app.stage.addChild(viewport);
@@ -425,7 +467,7 @@ __webpack_require__.r(__webpack_exports__);
 			.clamp({}) // don't allow to drag outside
 			.clampZoom({ // don't allow to zoom too much
 				minWidth: 400,
-				maxWidth: this.image.w * rectSize * 1.5
+				maxWidth: this.image.width * rectSize * 1.5
 			}).fit();
 
 			// check regulary if scale is large enough to change view
@@ -440,49 +482,26 @@ __webpack_require__.r(__webpack_exports__);
 				}
 			}, 100);
 
-			// generate grayscale palettes
-
-			for (var i = 0; i < this.palette.length; i++) {
-
-				let r = this.palette[i]._r / 255,
-				    g = this.palette[i]._g / 255,
-				    b = this.palette[i]._b / 255;
-
-				colors.push(PIXI.utils.rgb2hex([r, g, b]));
-
-				//desaturate 
-				r = (r + g + b) / 3;
-				grayColors.push(PIXI.utils.rgb2hex([r / 2 + 0.5, r / 2 + 0.5, r / 2 + 0.5]));
-
-				//lighten
-				r = 1 - (1 - r) / 5;
-				lightGrayColors.push(PIXI.utils.rgb2hex([r, r, r]));
-
-				//darken
-				r = r - 0.5;
-				darkGrayColors.push(PIXI.utils.rgb2hex([r, r, r]));
-			}
-
 			// draw images
 
 			var background = new PIXI.Graphics();
 			var backgroundZoomed = new PIXI.Graphics();
 			var front = new PIXI.Graphics();
-			for (var y = 0; y < this.image.h; y++) {
-				for (var x = 0; x < this.image.w; x++) {
+			for (var y = 0; y < this.image.height; y++) {
+				for (var x = 0; x < this.image.width; x++) {
 
-					if (this.image.data[y * this.image.w + x] - 1 === -1) continue;
+					if (this.image.pixels.clean[x][y] - 1 === -1) continue;
 
 					pixelsToColorCount++;
 
-					backgroundZoomed.beginFill(lightGrayColors[this.image.data[y * this.image.w + x] - 1]);
+					backgroundZoomed.beginFill(this.image.palettes.light[this.image.pixels.clean[x][y] - 1].toNumber());
 					backgroundZoomed.drawRect(x * rectSize, y * rectSize, rectSize - 1, rectSize - 1);
 					backgroundZoomed.endFill();
-					let txt = new PIXI.Text(this.image.data[y * this.image.w + x], { fontFamily: 'Verdana', fontSize: 24, fill: darkGrayColors[this.image.data[y * this.image.w + x] - 1], align: 'center' });
+					let txt = new PIXI.Text(this.image.pixels.clean[x][y], { fontFamily: 'Verdana', fontSize: 24, fill: this.image.palettes.dark[this.image.pixels.clean[x][y] - 1].toNumber(), align: 'center' });
 					txt.x = (x + 0.5) * rectSize - txt.width / 2;
 					txt.y = (y + 0.5) * rectSize - txt.height / 2;
 					backgroundZoomed.addChild(txt);
-					background.beginFill(grayColors[this.image.data[y * this.image.w + x] - 1]);
+					background.beginFill(this.image.palettes.light[this.image.pixels.clean[x][y] - 1].toNumber());
 					background.drawRect(x * rectSize, y * rectSize, rectSize, rectSize);
 					background.endFill();
 				}
@@ -502,15 +521,12 @@ __webpack_require__.r(__webpack_exports__);
 			    lastColoredPixelY = -1,
 			    lastColoredPixelTime = -1000;
 
-			if (!T.image.colored) {
-				T.image.colored = [].fill(0, T.image.h * T.image.w);
-			}
 			var fillPixel = function (x, y, flood = false, floodColor = null) {
-				if (x < 0 || y < 0 || x >= T.image.w || y >= T.image.h) return;
-				if (T.image.data[y * T.image.w + x] - 1 === -1) return;
-				if (T.image.data[y * T.image.w + x] - 1 !== T.selectedColor) {
+				if (x < 0 || y < 0 || x >= T.image.width || y >= T.image.height) return;
+				if (T.image.pixels.clean[x][y] - 1 === -1) return;
+				if (T.image.pixels.clean[x][y] - 1 !== T.selectedColor) {
 					if (!flood) return;
-					if (T.image.data[y * T.image.w + x] - 1 !== floodColor) return;
+					if (T.image.pixels.clean[x][y] - 1 !== floodColor) return;
 				}
 
 				if (!flood) {
@@ -529,7 +545,7 @@ __webpack_require__.r(__webpack_exports__);
 					lastColoredPixelY = y;
 				}
 
-				if (T.image.colored[y * T.image.w + x] === 1) return;
+				if (T.image.pixels.colored[x][y] === 1) return;
 
 				if (flood) {
 					var floodTimeout = setTimeout(function () {
@@ -540,14 +556,14 @@ __webpack_require__.r(__webpack_exports__);
 					}, 100);
 				}
 
-				T.image.colored[y * T.image.w + x] = 1;
+				T.image.pixels.colored[x][y] = 1;
 				coloredPixelsCount++;
 
 				var endFill = function () {
 
 					front.cacheAsBitmap = false;
 
-					front.beginFill(colors[T.image.data[y * T.image.w + x] - 1]);
+					front.beginFill(T.image.palettes.colors[T.image.pixels.clean[x][y] - 1].toNumber());
 					front.drawRect(x * rectSize, y * rectSize, rectSize, rectSize);
 					front.endFill();
 
@@ -564,14 +580,14 @@ __webpack_require__.r(__webpack_exports__);
 				var mask = new PIXI.Graphics();
 
 				mask.isMask = true;
-				mask.beginFill(colors[T.image.data[y * T.image.w + x] - 1]);
+				mask.beginFill(T.image.palettes.colors[T.image.pixels.clean[x][y] - 1].toNumber());
 				mask.drawRect(x * rectSize, y * rectSize, rectSize, rectSize);
 				mask.x = mask.y = 0;
 				mask.endFill();
 
 				viewport.addChild(mask);
 
-				clip.beginFill(colors[T.image.data[y * T.image.w + x] - 1]);
+				clip.beginFill(T.image.palettes.colors[T.image.pixels.clean[x][y] - 1].toNumber());
 				clip.drawCircle(0, 0, rectSize);
 				clip.endFill();
 				clip.x = (x + 0.5) * rectSize;
@@ -588,7 +604,7 @@ __webpack_require__.r(__webpack_exports__);
 				let point = e.data.getLocalPosition(viewport);
 				let x = Math.floor(point.x / rectSize);
 				let y = Math.floor(point.y / rectSize);
-				if (x >= 0 && x < T.image.w && y >= 0 && y < T.image.h) {
+				if (x >= 0 && x < T.image.width && y >= 0 && y < T.image.height) {
 					fillPixel(x, y);
 				}
 			};
@@ -677,37 +693,18 @@ __webpack_require__.r(__webpack_exports__);
 	methods: {
 		update: function () {
 			var canvas = this.$refs["canvas"];
-			var shadowCanvas = document.createElement('canvas');
-			var context = shadowCanvas.getContext('2d');
-			var pal = [];
-			for (var i = 0; i < this.image.palette.length; i++) {
-				var color = tinycolor2__WEBPACK_IMPORTED_MODULE_0___default()(this.image.palette[i]);
-				var rgb = color.desaturate(100).brighten(50).toRgb();
-				Array.prototype.push.apply(pal, [rgb.r, rgb.g, rgb.b, rgb.a * 255]);
-			}
-
-			var imageData = context.createImageData(this.image.width, this.image.height);
-			for (var y = 0; y < this.image.height; y++) {
-				for (var x = 0; x < this.image.width; x++) {
-					if (this.image.pixels[y * this.image.width + x] == 0) {
-						imageData.data[(y * this.image.width + x) * 4] = imageData.data[(y * this.image.width + x) * 4 + 1] = imageData.data[(y * this.image.width + x) * 4 + 2] = imageData.data[(y * this.image.width + x) * 4 + 3] = 0;
-						continue;
-					}
-					imageData.data[(y * this.image.width + x) * 4] = pal[(this.image.pixels[y * this.image.width + x] - 1) * 4];
-					imageData.data[(y * this.image.width + x) * 4 + 1] = pal[(this.image.pixels[y * this.image.width + x] - 1) * 4 + 1];
-					imageData.data[(y * this.image.width + x) * 4 + 2] = pal[(this.image.pixels[y * this.image.width + x] - 1) * 4 + 2];
-					imageData.data[(y * this.image.width + x) * 4 + 3] = pal[(this.image.pixels[y * this.image.width + x] - 1) * 4 + 3];
-				}
-			}
 			var pixelatedContext = canvas.getContext('2d');
-
-			context.putImageData(imageData, 0, 0);
 
 			pixelatedContext.msImageSmoothingEnabled = false;
 			pixelatedContext.mozImageSmoothingEnabled = false;
 			pixelatedContext.webkitImageSmoothingEnabled = false;
 			pixelatedContext.imageSmoothingEnabled = false;
-			pixelatedContext.drawImage(shadowCanvas, 0, 0, this.image.width, this.image.height, 0, 0, canvas.width, canvas.height);
+
+			var newWidth = Math.min(canvas.width, this.image.width / this.image.height * canvas.height);
+			var newHeight = this.image.height / this.image.width * newWidth;
+			var x = newWidth < canvas.width ? (canvas.width - newWidth) / 2 : 0;
+			var y = newHeight < canvas.height ? (canvas.height - newHeight) / 2 : 0;
+			pixelatedContext.drawImage(this.image.canvases.light, 0, 0, this.image.width, this.image.height, x, y, newWidth, newHeight);
 		}
 	},
 	mounted: function () {
@@ -1026,7 +1023,26 @@ exports = module.exports = __webpack_require__(/*! ../../node_modules/css-loader
 
 
 // module
-exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
+exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
+
+// exports
+
+
+/***/ }),
+
+/***/ "./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/ImagesMenu.vue?vue&type=style&index=0&lang=css":
+/*!************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/css-loader!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/vue-loader/lib??vue-loader-options!./src/Components/ImagesMenu.vue?vue&type=style&index=0&lang=css ***!
+  \************************************************************************************************************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(/*! ../../node_modules/css-loader/lib/css-base.js */ "./node_modules/css-loader/lib/css-base.js")(false);
+// imports
+
+
+// module
+exports.push([module.i, "\n.ImagesMenu {\n\tpadding:3px;\n}\n", ""]);
 
 // exports
 
@@ -1045,7 +1061,7 @@ exports = module.exports = __webpack_require__(/*! ../../node_modules/css-loader
 
 
 // module
-exports.push([module.i, "\ncanvas {\n\tbackground-color:#f0f0f0;\n}\n", ""]);
+exports.push([module.i, "\n.ImagesMenuItem {\n\twidth: 150px;\n\theight: 150px;\n\tdisplay: inline-block;\n\tmargin: 3px;\n\tbackground-color:#f9f9f9;\n}\n", ""]);
 
 // exports
 
@@ -59622,6 +59638,7 @@ var render = function() {
   var _c = _vm._self._c || _h
   return _c(
     "div",
+    { staticClass: "ImagesMenu" },
     _vm._l(_vm.images, function(image, index) {
       return _c("ImagesMenuItem", {
         attrs: { image: image },
@@ -59658,6 +59675,7 @@ var render = function() {
   var _c = _vm._self._c || _h
   return _c("canvas", {
     ref: "canvas",
+    staticClass: "ImagesMenuItem",
     on: {
       click: function($event) {
         _vm.$emit("select")
@@ -59879,6 +59897,27 @@ if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
 var add = __webpack_require__(/*! ../../node_modules/vue-style-loader/lib/addStylesClient.js */ "./node_modules/vue-style-loader/lib/addStylesClient.js").default
 var update = add("7b7f80d4", content, false, {});
+// Hot Module Replacement
+if(false) {}
+
+/***/ }),
+
+/***/ "./node_modules/vue-style-loader/index.js!./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/ImagesMenu.vue?vue&type=style&index=0&lang=css":
+/*!********************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-style-loader!./node_modules/css-loader!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/vue-loader/lib??vue-loader-options!./src/Components/ImagesMenu.vue?vue&type=style&index=0&lang=css ***!
+  \********************************************************************************************************************************************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(/*! !../../node_modules/css-loader!../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../node_modules/vue-loader/lib??vue-loader-options!./ImagesMenu.vue?vue&type=style&index=0&lang=css */ "./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/ImagesMenu.vue?vue&type=style&index=0&lang=css");
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var add = __webpack_require__(/*! ../../node_modules/vue-style-loader/lib/addStylesClient.js */ "./node_modules/vue-style-loader/lib/addStylesClient.js").default
+var update = add("2554ad6e", content, false, {});
 // Hot Module Replacement
 if(false) {}
 
@@ -72718,7 +72757,9 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ImagesMenu_vue_vue_type_template_id_0ecbb687__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ImagesMenu.vue?vue&type=template&id=0ecbb687 */ "./src/Components/ImagesMenu.vue?vue&type=template&id=0ecbb687");
 /* harmony import */ var _ImagesMenu_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ImagesMenu.vue?vue&type=script&lang=js */ "./src/Components/ImagesMenu.vue?vue&type=script&lang=js");
-/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+/* empty/unused harmony star reexport *//* harmony import */ var _ImagesMenu_vue_vue_type_style_index_0_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ImagesMenu.vue?vue&type=style&index=0&lang=css */ "./src/Components/ImagesMenu.vue?vue&type=style&index=0&lang=css");
+/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
 
 
 
@@ -72726,7 +72767,7 @@ __webpack_require__.r(__webpack_exports__);
 
 /* normalize component */
 
-var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__["default"])(
   _ImagesMenu_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"],
   _ImagesMenu_vue_vue_type_template_id_0ecbb687__WEBPACK_IMPORTED_MODULE_0__["render"],
   _ImagesMenu_vue_vue_type_template_id_0ecbb687__WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
@@ -72755,6 +72796,22 @@ component.options.__file = "src/Components/ImagesMenu.vue"
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _node_modules_babel_loader_lib_index_js_node_modules_vue_loader_lib_index_js_vue_loader_options_ImagesMenu_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../node_modules/babel-loader/lib!../../node_modules/vue-loader/lib??vue-loader-options!./ImagesMenu.vue?vue&type=script&lang=js */ "./node_modules/babel-loader/lib/index.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/ImagesMenu.vue?vue&type=script&lang=js");
 /* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_node_modules_vue_loader_lib_index_js_vue_loader_options_ImagesMenu_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./src/Components/ImagesMenu.vue?vue&type=style&index=0&lang=css":
+/*!***********************************************************************!*\
+  !*** ./src/Components/ImagesMenu.vue?vue&type=style&index=0&lang=css ***!
+  \***********************************************************************/
+/*! no static exports found */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_vue_loader_lib_index_js_vue_loader_options_ImagesMenu_vue_vue_type_style_index_0_lang_css__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../node_modules/vue-style-loader!../../node_modules/css-loader!../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../node_modules/vue-loader/lib??vue-loader-options!./ImagesMenu.vue?vue&type=style&index=0&lang=css */ "./node_modules/vue-style-loader/index.js!./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/ImagesMenu.vue?vue&type=style&index=0&lang=css");
+/* harmony import */ var _node_modules_vue_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_vue_loader_lib_index_js_vue_loader_options_ImagesMenu_vue_vue_type_style_index_0_lang_css__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_vue_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_vue_loader_lib_index_js_vue_loader_options_ImagesMenu_vue_vue_type_style_index_0_lang_css__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _node_modules_vue_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_vue_loader_lib_index_js_vue_loader_options_ImagesMenu_vue_vue_type_style_index_0_lang_css__WEBPACK_IMPORTED_MODULE_0__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _node_modules_vue_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_vue_loader_lib_index_js_vue_loader_options_ImagesMenu_vue_vue_type_style_index_0_lang_css__WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
+ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_vue_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_vue_loader_lib_index_js_vue_loader_options_ImagesMenu_vue_vue_type_style_index_0_lang_css__WEBPACK_IMPORTED_MODULE_0___default.a); 
 
 /***/ }),
 

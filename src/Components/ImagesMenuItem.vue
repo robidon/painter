@@ -1,5 +1,5 @@
 <template>
-	<canvas ref="canvas" v-on:click="$emit('select')"></canvas>
+	<canvas class="ImagesMenuItem" ref="canvas" v-on:click="$emit('select')"></canvas>
 </template>
 
 <script>
@@ -20,41 +20,18 @@ export default {
 	methods: {
 		update: function () {
 			var canvas = this.$refs["canvas"];
-			var shadowCanvas = document.createElement('canvas');
-			var context = shadowCanvas.getContext('2d');
-			var pal = [];
-			for (var i = 0;i<this.image.palette.length;i++) {
-				var color = Tinycolor(this.image.palette[i]);
-				var rgb = color.desaturate(100).brighten(50).toRgb();
-				Array.prototype.push.apply(pal, [rgb.r,rgb.g,rgb.b,rgb.a*255]);
-			}
-			
-			var imageData = context.createImageData(this.image.width,this.image.height);
-			for (var y = 0;y<this.image.height;y++) {
-				for(var x = 0;x<this.image.width;x++) {
-					if(this.image.pixels[y*this.image.width+x]==0) {
-						imageData.data[(y*this.image.width+x)*4]
-						 = imageData.data[(y*this.image.width+x)*4+1]
-						 = imageData.data[(y*this.image.width+x)*4+2]
-						 = imageData.data[(y*this.image.width+x)*4+3]
-						 = 0;
-						 continue;							
-					}
-					imageData.data[(y*this.image.width+x)*4] = pal[(this.image.pixels[y*this.image.width+x]-1)*4];
-					imageData.data[(y*this.image.width+x)*4+1] = pal[(this.image.pixels[y*this.image.width+x]-1)*4+1];
-					imageData.data[(y*this.image.width+x)*4+2] = pal[(this.image.pixels[y*this.image.width+x]-1)*4+2];
-					imageData.data[(y*this.image.width+x)*4+3] = pal[(this.image.pixels[y*this.image.width+x]-1)*4+3];
-				}
-			}
 			var pixelatedContext = canvas.getContext('2d');
 			
-			context.putImageData(imageData, 0, 0);
-
 			pixelatedContext.msImageSmoothingEnabled = false;
 			pixelatedContext.mozImageSmoothingEnabled = false;
 			pixelatedContext.webkitImageSmoothingEnabled = false;
 			pixelatedContext.imageSmoothingEnabled = false;
-			pixelatedContext.drawImage(shadowCanvas, 0, 0, this.image.width, this.image.height, 0, 0, canvas.width, canvas.height);
+
+			var newWidth = Math.min(canvas.width, this.image.width/this.image.height*canvas.height);
+			var newHeight = this.image.height/this.image.width*newWidth;
+			var x = (newWidth<canvas.width) ? ((canvas.width - newWidth)/2) : 0;
+			var y = (newHeight<canvas.height) ? ((canvas.height - newHeight)/2) : 0;
+			pixelatedContext.drawImage(this.image.canvases.light, 0, 0, this.image.width, this.image.height, x, y, newWidth, newHeight);
 		}		
 	},
 	mounted: function () {
@@ -70,7 +47,11 @@ export default {
 </script>
 
 <style>
-	canvas {
-		background-color:#f0f0f0;
+	.ImagesMenuItem {
+		width: 150px;
+		height: 150px;
+		display: inline-block;
+		margin: 3px;
+		background-color:#f9f9f9;
 	}
 </style>
