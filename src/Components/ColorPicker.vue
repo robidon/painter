@@ -39,6 +39,7 @@ export default {
 
 <style>
 .picker-container {
+	background:#f7f7f7;
 	position: absolute;
 	bottom:0px; left:0px;
 	width: 100%;
@@ -47,7 +48,7 @@ export default {
 }
 .colorpicker {
 	text-align: center;
-    padding:5px 10px;
+    padding:8px 10px;
 	height: 90px;
     white-space: nowrap;
     overflow-x: scroll;

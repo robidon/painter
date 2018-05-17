@@ -1,5 +1,5 @@
 <template>
-	<div ref="image">
+	<div class="GameContainer" ref="image">
 	</div>
 </template>
 
@@ -49,9 +49,10 @@ export default {
 			app.renderer.view.style.position = "absolute";
 			app.renderer.view.style.display = "block";
 			app.renderer.autoResize = true;
-			app.renderer.resize(window.innerWidth, window.innerHeight);
+			var container = this.$refs['image'];
+			app.renderer.resize(container.clientWidth, container.clientHeight);
 
-			this.$refs['image'].appendChild(app.view);
+			container.appendChild(app.view);
 
 			var coloredPixelsCount = 0,
 				pixelsToColorCount = 0;
@@ -60,8 +61,8 @@ export default {
 
 			// create viewport
 			var viewport = new Viewport({
-			    screenWidth: window.innerWidth,
-			    screenHeight: window.innerHeight,
+			    screenWidth: container.clientWidth,
+			    screenHeight: container.clientHeight,
 			    worldWidth: this.image.width*rectSize,
 			    worldHeight: this.image.height*rectSize
 			});
@@ -237,5 +238,8 @@ export default {
 </script>
 
 <style>
-	
+	.GameContainer {
+		position:absolute;
+		left:0px;top:0px;right:0px;bottom:70px;
+	}
 </style>

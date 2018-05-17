@@ -440,9 +440,10 @@ tinycolor2__WEBPACK_IMPORTED_MODULE_1___default.a.prototype.toNumber = function 
 			app.renderer.view.style.position = "absolute";
 			app.renderer.view.style.display = "block";
 			app.renderer.autoResize = true;
-			app.renderer.resize(window.innerWidth, window.innerHeight);
+			var container = this.$refs['image'];
+			app.renderer.resize(container.clientWidth, container.clientHeight);
 
-			this.$refs['image'].appendChild(app.view);
+			container.appendChild(app.view);
 
 			var coloredPixelsCount = 0,
 			    pixelsToColorCount = 0;
@@ -451,8 +452,8 @@ tinycolor2__WEBPACK_IMPORTED_MODULE_1___default.a.prototype.toNumber = function 
 
 			// create viewport
 			var viewport = new pixi_viewport__WEBPACK_IMPORTED_MODULE_0___default.a({
-				screenWidth: window.innerWidth,
-				screenHeight: window.innerHeight,
+				screenWidth: container.clientWidth,
+				screenHeight: container.clientHeight,
 				worldWidth: this.image.width * rectSize,
 				worldHeight: this.image.height * rectSize
 			});
@@ -967,7 +968,7 @@ exports = module.exports = __webpack_require__(/*! ../../node_modules/css-loader
 
 
 // module
-exports.push([module.i, "\n.color-button {\r\n\tdisplay: inline-block;\r\n\tfont-family: Verdana;\r\n\tfont-size:18px;\r\n\tcolor: #a7a7a7;\r\n\t/*background-image: -webkit-gradient(linear, left top, left bottom, from(#f7f7f7), to(#e7e7e7));\r\n\tbackground-image: -webkit-linear-gradient(top, #f7f7f7, #e7e7e7); \r\n\tbackground-image: -moz-linear-gradient(top, #f7f7f7, #e7e7e7); \r\n\tbackground-image: -ms-linear-gradient(top, #f7f7f7, #e7e7e7); \r\n\tbackground-image: -o-linear-gradient(top, #f7f7f7, #e7e7e7); */\r\n\tmargin: 5px;\r\n\twidth: 44px;\r\n\theight: 44px;\r\n\tposition: relative;\r\n\ttext-align: center;\r\n\tline-height: 44px;\r\n\tborder-radius: 50%;\r\n\tbox-shadow: 0px 3px 8px #aaa, inset 0px 2px 3px #fff;\n}\n.color-button.selected {\r\n\twidth:54px;\r\n\theight:54px;\r\n\tline-height: 54px;\r\n\tmargin:0px;\n}\r\n", ""]);
+exports.push([module.i, "\n.color-button {\r\n\tdisplay: block;\r\n\tfont-family: Verdana;\r\n\tfont-size:18px;\r\n\tcolor: #a7a7a7;\r\n\tmargin: 5px;\r\n\twidth: 44px;\r\n\theight: 44px;\r\n\tposition: relative;\r\n\ttext-align: center;\r\n\tline-height: 44px;\r\n\tborder-radius: 50%;\r\n\tbox-shadow: 0px 6px 16px #fff, inset 0px 20px 30px #fff5;\r\n\t-webkit-box-shadow: 0px 6px 16px #fff, inset 0px 20px 30px #fff5;\r\n\t-moz-box-shadow: 0px 6px 16px #fff, inset 0px 20px 30px #fff5;\r\n\r\n\t-webkit-touch-callout:none;\r\n\t-webkit-user-select:none;\r\n\t-khtml-user-select:none;\r\n\t-moz-user-select:none;\r\n\t-ms-user-select:none;\r\n\tuser-select:none;\r\n\t-webkit-tap-highlight-color:rgba(0,0,0,0);\n}\n.color-button-container {\r\n\tposition: relative;\r\n\tdisplay: inline-block;\n}\n.color-button.selected {\r\n\twidth:54px;\r\n\theight:54px;\r\n\tline-height: 54px;\r\n\tmargin:0px;\n}\r\n", ""]);
 
 // exports
 
@@ -986,7 +987,7 @@ exports = module.exports = __webpack_require__(/*! ../../node_modules/css-loader
 
 
 // module
-exports.push([module.i, "\n.picker-container {\r\n\tposition: absolute;\r\n\tbottom:0px; left:0px;\r\n\twidth: 100%;\r\n    height: 70px;\r\n    overflow: hidden;\n}\n.colorpicker {\r\n\ttext-align: center;\r\n    padding:5px 10px;\r\n\theight: 90px;\r\n    white-space: nowrap;\r\n    overflow-x: scroll;\r\n    overflow-y: hidden;\r\n    -webkit-overflow-scrolling: touch;\n}\r\n", ""]);
+exports.push([module.i, "\n.picker-container {\r\n\tbackground:#f7f7f7;\r\n\tposition: absolute;\r\n\tbottom:0px; left:0px;\r\n\twidth: 100%;\r\n    height: 70px;\r\n    overflow: hidden;\n}\n.colorpicker {\r\n\ttext-align: center;\r\n    padding:8px 10px;\r\n\theight: 90px;\r\n    white-space: nowrap;\r\n    overflow-x: scroll;\r\n    overflow-y: hidden;\r\n    -webkit-overflow-scrolling: touch;\n}\r\n", ""]);
 
 // exports
 
@@ -1024,7 +1025,7 @@ exports = module.exports = __webpack_require__(/*! ../../node_modules/css-loader
 
 
 // module
-exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
+exports.push([module.i, "\n.GameContainer {\n\tposition:absolute;\n\tleft:0px;top:0px;right:0px;bottom:70px;\n}\n", ""]);
 
 // exports
 
@@ -59493,16 +59494,18 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c(
-    "div",
-    {
-      staticClass: "color-button",
-      class: { selected: _vm.selected },
-      style: { backgroundColor: _vm.cssBColor, color: _vm.cssFColor },
-      on: { click: _vm.toggle }
-    },
-    [_vm._v(_vm._s(_vm.index + 1))]
-  )
+  return _c("div", { staticClass: "color-button-container" }, [
+    _c(
+      "div",
+      {
+        staticClass: "color-button",
+        class: { selected: _vm.selected },
+        style: { backgroundColor: _vm.cssBColor, color: _vm.cssFColor },
+        on: { click: _vm.toggle }
+      },
+      [_vm._v(_vm._s(_vm.index + 1))]
+    )
+  ])
 }
 var staticRenderFns = []
 render._withStripped = true
@@ -59613,7 +59616,7 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("div", { ref: "image" })
+  return _c("div", { ref: "image", staticClass: "GameContainer" })
 }
 var staticRenderFns = []
 render._withStripped = true
