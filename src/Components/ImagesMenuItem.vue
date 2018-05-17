@@ -1,5 +1,5 @@
 <template>
-	<canvas class="ImagesMenuItem" ref="canvas" v-on:click="$emit('select')"></canvas>
+	<canvas class="images-menu-item" ref="canvas" v-on:click="$emit('select')"></canvas>
 </template>
 
 <script>
@@ -47,11 +47,19 @@ export default {
 </script>
 
 <style>
-	.ImagesMenuItem {
-		width: 150px;
-		height: 150px;
+	.images-menu-item {
+		position: relative;
+		width: 48%;
+		min-width: 100px;
+		max-width: 200px; 
 		display: inline-block;
-		margin: 3px;
+		margin: 1%;
 		background-color:#f9f9f9;
 	}
+	.images-menu-item:after {
+		content: "";
+		display: block;
+		padding-bottom: 100%;
+	}
+
 </style>

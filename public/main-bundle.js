@@ -1044,7 +1044,7 @@ exports = module.exports = __webpack_require__(/*! ../../node_modules/css-loader
 
 
 // module
-exports.push([module.i, "\n.ImagesMenu {\n\tpadding:3px;\n}\n", ""]);
+exports.push([module.i, "\n.ImagesMenu {\n\tpadding: 1%;\n\ttext-align: center;\n}\n", ""]);
 
 // exports
 
@@ -1063,7 +1063,7 @@ exports = module.exports = __webpack_require__(/*! ../../node_modules/css-loader
 
 
 // module
-exports.push([module.i, "\n.ImagesMenuItem {\n\twidth: 150px;\n\theight: 150px;\n\tdisplay: inline-block;\n\tmargin: 3px;\n\tbackground-color:#f9f9f9;\n}\n", ""]);
+exports.push([module.i, "\n.images-menu-item {\n\tposition: relative;\n\twidth: 48%;\n\tmin-width: 100px;\n\tmax-width: 200px; \n\tdisplay: inline-block;\n\tmargin: 1%;\n\tbackground-color:#f9f9f9;\n}\n.images-menu-item:after {\n\tcontent: \"\";\n\tdisplay: block;\n\tpadding-bottom: 100%;\n}\n\n", ""]);
 
 // exports
 
@@ -59679,7 +59679,7 @@ var render = function() {
   var _c = _vm._self._c || _h
   return _c("canvas", {
     ref: "canvas",
-    staticClass: "ImagesMenuItem",
+    staticClass: "images-menu-item",
     on: {
       click: function($event) {
         _vm.$emit("select")

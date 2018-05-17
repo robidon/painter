@@ -30,6 +30,7 @@ export default {
 
 <style>
 	.ImagesMenu {
-		padding:3px;
+		padding: 1%;
+		text-align: center;
 	}
 </style>
