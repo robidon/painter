@@ -42,6 +42,7 @@ export default {
 
 		if (!this.image.loaded) return;
 
+		this.update();
 	}
 }
 </script>

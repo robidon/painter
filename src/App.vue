@@ -1,34 +1,46 @@
 <template>
 	<div id="app">
-		<ImagesMenu v-if="selectedImageIndex === -1" v-bind:images="images" v-on:select="select"></ImagesMenu>
-		<Game v-if="selectedImageIndex !== -1" v-bind:image="images[selectedImageIndex]"></Game>
+		<!--<ImagesMenu v-if="selectedImageIndex === -1" v-bind:images="images" v-on:select="select"></ImagesMenu>
+		<Game v-if="selectedImageIndex !== -1" v-bind:image="images[selectedImageIndex]"></Game>-->
+		<router-view></router-view>
 	</div>
 </template>
 
 <script>
+import Vue from 'vue';
+import VueRouter from 'vue-router';
 import Game from './Components/Game.vue'
 import ImagesMenu from './Components/ImagesMenu.vue'
 import Tinycolor from "tinycolor2";
-import Vue from 'vue';
+
+Vue.use(VueRouter);
+const routes = [
+  { name:'imagesmenu', path: '/imagesmenu', component: ImagesMenu },
+  { name:'game', path: '/game/:id', component: Game }
+];
+
+const router = new VueRouter({
+  routes
+});
 
 export default {
+	router:router,
 	data: function () {
 		return {
 			selectedImageIndex: -1,
-			images: [],
+			images: window.globals.images,
 			imageNames: []
 		}
 	},
 	created: function () {
+
+		this.images.push({id:'Betta-PNG-Photos'});
+		this.images.push({id:'cat'});
+		this.images.push({id:'Donkey-Kong-PNG-Photos'});
+		this.images.push({id:'Leopard-PNG-Free-Download'});
+		this.images.push({id:'Leopard-Transparent-Background'});
+		this.images.push({id:'Pile-of-Skulls-PNG-Clipart'});
 		
-		this.images = [
-			{id:'Betta-PNG-Photos'},
-			{id:'cat'},
-			{id:'Donkey-Kong-PNG-Photos'},
-			{id:'Leopard-PNG-Free-Download'},
-			{id:'Leopard-Transparent-Background'},
-			{id:'Pile-of-Skulls-PNG-Clipart'}
-		];
 		for(let i =0;i<this.images.length;i++) {
 			this.images[i].loaded = false;
 			fetch("i/"+this.images[i].id+".json")
@@ -37,6 +49,9 @@ export default {
 					this.setupImage(i, json);
 				});
 		}
+
+		this.$router.push('/imagesmenu');
+
 	},
 	methods:{
 		select:function(index) {

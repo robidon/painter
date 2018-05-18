@@ -8,17 +8,16 @@
 import ImagesMenuItem from "./ImagesMenuItem.vue";
 
 export default {
-	props: {
-		images: {
-			type: Array,
-			default: function () { return []; }
-		}
+	data: function () {
+		return {
+			images:window.globals.images
+		};		
 	},
 	computed: {
 	},
 	methods: {
 		select: function (index) {
-			this.$emit("select", index);
+			this.$router.push({name:'game', params: {id: index}});
 		}
 	},
 	components: {
