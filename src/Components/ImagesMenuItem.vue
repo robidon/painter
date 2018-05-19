@@ -31,6 +31,7 @@ export default {
 	methods: {
 		update: function () {
 			var canvas = this.$refs["canvas"];
+			if (typeof(canvas)=="undefined" || typeof(this.image)=="undefined") return;
 			var pixelatedContext = canvas.getContext('2d');
 			
 			pixelatedContext.msImageSmoothingEnabled = false;
@@ -43,6 +44,9 @@ export default {
 			var x = (newWidth<canvas.width) ? ((canvas.width - newWidth)/2) : 0;
 			var y = (newHeight<canvas.height) ? ((canvas.height - newHeight)/2) : 0;
 			pixelatedContext.drawImage(this.image.canvases.light, 0, 0, this.image.width, this.image.height, x, y, newWidth, newHeight);
+			if (this.image.canvases.colored) {
+				pixelatedContext.drawImage(this.image.canvases.colored, 0, 0, this.image.width, this.image.height, x, y, newWidth, newHeight);
+			}
 			this.showPreloader = false;
 		}		
 	},
@@ -55,6 +59,11 @@ export default {
 		if (!this.image.loaded) return;
 
 		this.update();
+		this.$router.app.$on('update-image', (id)=>{
+			if (typeof(this.image!="undefined") && id==this.image.id) {
+				this.update();
+			}
+		});
 	}
 }
 </script>

@@ -116,6 +116,12 @@ export default {
 				for (var y=0;y<this.image.height;y++) {
 					for (var x=0;x<this.image.width;x++) {
 
+						if (this.image.pixels.colored[x][y]) {
+							front.beginFill(this.image.palettes.colors[this.image.pixels.clean[x][y]-1].toNumber());
+							front.drawRect(x*rectSize,y*rectSize,rectSize,rectSize);
+							front.endFill();							
+						}
+						
 						if ( this.image.pixels.clean[x][y]-1 === -1 ) continue;
 						
 						pixelsToColorCount ++;
@@ -193,8 +199,10 @@ export default {
 						viewport.removeChild(clip);
 						viewport.removeChild(mask);
 
+						T.$emit('mark-colored',{x:x,y:y});
+
 						if (coloredPixelsCount >= pixelsToColorCount) {
-							T.$emit("levelComplete");
+							T.$emit("level-complete");
 						}
 
 					}
@@ -244,7 +252,7 @@ export default {
 
 				viewport.on('click', tap);
 				app.render();
-				
+
 				this.$emit('render-complete');
 			},1);
 		}

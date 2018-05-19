@@ -7,7 +7,9 @@
 				v-bind:palette="palette"
 				v-bind:image="image"
 				v-bind:selectedColor="selectedColor"
-				v-on:render-complete="renderComplete"></GameCanvas>
+				v-on:render-complete="renderComplete"
+				v-on:level-complete="levelComplete"
+				v-on:mark-colored="markColored"></GameCanvas>
 			<ColorPicker
 				v-bind:palette="palette"
 				v-bind:selectedColor="selectedColor"
@@ -17,7 +19,7 @@
 </template>
 
 <script>
-
+import _ from 'underscore';
 import Tinycolor from "tinycolor2";
 import GameCanvas from './GameCanvas.vue';
 import ColorPicker from './ColorPicker.vue';
@@ -46,7 +48,7 @@ export default {
 		}
 	},
 	created: function () {
-
+		this.debouncedSaveImage = _.debounce(this.saveImage,500);
   	},
   	mounted: function () {
 		setTimeout(()=>{
@@ -59,10 +61,23 @@ export default {
   		renderComplete: function () {
   			this.showPreloader = false;
   		},
+  		saveImage: function() {
+  			if (typeof (this.image)!="undefined") {
+				this.$router.app.$emit('save-image', this.image.id);  			
+  			}
+  		},
+  		markColored:function (point) {
+  			this.image.pixels.colored[point.x][point.y] = 1;
+  			this.debouncedSaveImage();
+  		},
+  		levelComplete:function() {
+
+  		},
   		changeColor:function (newColorIndex) {
   			this.selectedColor = newColorIndex;
   		},
   		navigateBack: function () {
+  			this.saveImage();
   			this.selectedColor = 0;
 	  		this.showPreloader = true;
   			this.$router.push("/imagesmenu");
