@@ -1,14 +1,18 @@
 <template>
-	<div class="game">
+	<div class="game" ref="game">
+		<preloader v-if="showPreloader"></preloader>
     	<div class="link-back" v-on:click="navigateBack"><i class="arrow left"></i></div>
-		<GameCanvas ref="canvas"
-			v-bind:palette="palette"
-			v-bind:image="image"
-			v-bind:selectedColor="selectedColor"></GameCanvas>
-		<ColorPicker
-			v-bind:palette="palette"
-			v-bind:selectedColor="selectedColor"
-			v-on:setColor="changeColor"></ColorPicker>
+		<div v-show="!showPreloader" class="game-content">
+			<GameCanvas ref="canvas"
+				v-bind:palette="palette"
+				v-bind:image="image"
+				v-bind:selectedColor="selectedColor"
+				v-on:render-complete="showPreloader = false"></GameCanvas>
+			<ColorPicker
+				v-bind:palette="palette"
+				v-bind:selectedColor="selectedColor"
+				v-on:setColor="changeColor"></ColorPicker>
+		</div>
 	</div>
 </template>
 
@@ -37,14 +41,15 @@ export default {
 	},
 	data: function () {
 		return {
-			selectedColor:0
+			selectedColor:0,
+			showPreloader: true
 		}
 	},
 	created: function () {
 
   	},
   	mounted: function () {
-		this.$refs.canvas.render();
+		this.$refs.canvas.render(this.$refs.game.clientWidth, this.$refs.game.clientHeight-70);
   	},
   	methods: {
   		changeColor:function (newColorIndex) {
@@ -63,8 +68,14 @@ export default {
 
 <style>
 .game {
+	position:relative;
+	width:100%;height: 100%;
+}
+.game-content {
 	position:absolute;
-	left:0;top:0;bottom:0;right:0;
+	left:0px;top:0px;
+	width:100%;
+	height: 100%;
 }
 .link-back {
 	position: absolute;

@@ -14,6 +14,7 @@ import ImagesMenu from './Components/ImagesMenu.vue'
 import Tinycolor from "tinycolor2";
 
 Vue.use(VueRouter);
+
 const routes = [
   { name:'imagesmenu', path: '/imagesmenu', component: ImagesMenu },
   { name:'game', path: '/game/:id', component: Game }

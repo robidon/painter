@@ -102,6 +102,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 vue__WEBPACK_IMPORTED_MODULE_0__["default"].use(vue_router__WEBPACK_IMPORTED_MODULE_1__["default"]);
+
 const routes = [{ name: 'imagesmenu', path: '/imagesmenu', component: _Components_ImagesMenu_vue__WEBPACK_IMPORTED_MODULE_3__["default"] }, { name: 'game', path: '/game/:id', component: _Components_Game_vue__WEBPACK_IMPORTED_MODULE_2__["default"] }];
 
 const router = new vue_router__WEBPACK_IMPORTED_MODULE_1__["default"]({
@@ -347,6 +348,10 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
 
 
 
@@ -372,12 +377,13 @@ __webpack_require__.r(__webpack_exports__);
 	},
 	data: function () {
 		return {
-			selectedColor: 0
+			selectedColor: 0,
+			showPreloader: true
 		};
 	},
 	created: function () {},
 	mounted: function () {
-		this.$refs.canvas.render();
+		this.$refs.canvas.render(this.$refs.game.clientWidth, this.$refs.game.clientHeight - 70);
 	},
 	methods: {
 		changeColor: function (newColorIndex) {
@@ -443,120 +449,136 @@ tinycolor2__WEBPACK_IMPORTED_MODULE_1___default.a.prototype.toNumber = function 
 	},
 	mounted: function () {},
 	methods: {
-		render: function () {
-			let T = this;
-			let type = "WebGL";
-			if (!PIXI.utils.isWebGLSupported()) {
-				type = "canvas";
-			}
-
-			let app = new PIXI.Application({
-				width: 256,
-				height: 256,
-				antialias: true,
-				transparent: false,
-				resolution: 1
-			});
-
-			app.renderer.backgroundColor = 0xffffff;
-			app.renderer.view.style.position = "absolute";
-			app.renderer.view.style.display = "block";
-			app.renderer.autoResize = true;
-			var container = this.$refs['image'];
-			app.renderer.resize(container.clientWidth, container.clientHeight);
-
-			container.appendChild(app.view);
-
-			var coloredPixelsCount = 0,
-			    pixelsToColorCount = 0;
-
-			var rectSize = 50;
-
-			// create viewport
-			var viewport = new pixi_viewport__WEBPACK_IMPORTED_MODULE_0___default.a({
-				screenWidth: container.clientWidth,
-				screenHeight: container.clientHeight,
-				worldWidth: this.image.width * rectSize,
-				worldHeight: this.image.height * rectSize
-			});
-
-			app.stage.addChild(viewport);
-
-			viewport.drag() // enable drag
-			.wheel() // enable zoom on mouse wheel
-			.pinch() // enable zoom on pinch
-			.bounce() // ??
-			.decelerate() // ??
-			.clamp({}) // don't allow to drag outside
-			.clampZoom({ // don't allow to zoom too much
-				minWidth: 400,
-				maxWidth: this.image.width * rectSize * 1.5
-			}).fit();
-
-			// check regulary if scale is large enough to change view
-			// @todo clearInterval on destroy
-			setInterval(function () {
-				if (viewport.transform.scale._x > 0.3) {
-					background.visible = false;
-					backgroundZoomed.visible = true;
-				} else {
-					background.visible = true;
-					backgroundZoomed.visible = false;
-				}
-			}, 100);
-
-			// draw images
-
-			//var background = new PIXI.Graphics();
-
-			var basetexture = new PIXI.BaseTexture(this.image.canvases.light, PIXI.SCALE_MODES.NEAREST, 1 / rectSize);
-			var texture = new PIXI.Texture(basetexture);
-			var background = new PIXI.Sprite(texture);
-			var bckZoomedSprite = new PIXI.Sprite(texture);
-
-			//background.
-			var backgroundZoomed = new PIXI.Graphics();
-			backgroundZoomed.addChild(bckZoomedSprite);
-			var front = new PIXI.Graphics();
-			for (var y = 0; y < this.image.height; y++) {
-				for (var x = 0; x < this.image.width; x++) {
-
-					if (this.image.pixels.clean[x][y] - 1 === -1) continue;
-
-					pixelsToColorCount++;
-
-					let txt = new PIXI.Text(this.image.pixels.clean[x][y], { fontFamily: 'Verdana', fontSize: 24, fill: this.image.palettes.dark[this.image.pixels.clean[x][y] - 1].toNumber(), align: 'center' });
-					txt.x = (x + 0.5) * rectSize - txt.width / 2;
-					txt.y = (y + 0.5) * rectSize - txt.height / 2;
-					backgroundZoomed.addChild(txt);
-				}
-			}
-
-			// now we can cache rendered maps
-			backgroundZoomed.cacheAsBitmap = true;
-
-			viewport.addChild(background);
-			viewport.addChild(backgroundZoomed);
-			viewport.addChild(front);
-
-			backgroundZoomed.visible = false;
-
-			var lastColoredPixelX = -1,
-			    lastColoredPixelY = -1,
-			    lastColoredPixelTime = -1000;
-
-			var fillPixel = function (x, y, flood = false, floodColor = null) {
-				if (x < 0 || y < 0 || x >= T.image.width || y >= T.image.height) return;
-				if (T.image.pixels.clean[x][y] - 1 === -1) return;
-				if (T.image.pixels.clean[x][y] - 1 !== T.selectedColor) {
-					if (!flood) return;
-					if (T.image.pixels.clean[x][y] - 1 !== floodColor) return;
+		render: function (clientWidth, clientHeight) {
+			setTimeout(() => {
+				let T = this;
+				let type = "WebGL";
+				if (!PIXI.utils.isWebGLSupported()) {
+					type = "canvas";
 				}
 
-				if (!flood) {
-					var newColoredPixelTime = Date.now();
-					if (newColoredPixelTime - lastColoredPixelTime < 300 && lastColoredPixelX === x && lastColoredPixelY === y) {
-						floodColor = T.selectedColor;
+				let app = new PIXI.Application({
+					width: 256,
+					height: 256,
+					antialias: true,
+					transparent: false,
+					resolution: 1
+				});
+
+				app.renderer.backgroundColor = 0xffffff;
+				app.renderer.view.style.position = "absolute";
+				app.renderer.view.style.display = "block";
+				app.renderer.autoResize = true;
+				var container = this.$refs['image'];
+				app.renderer.resize(clientWidth, clientHeight);
+
+				container.appendChild(app.view);
+
+				var coloredPixelsCount = 0,
+				    pixelsToColorCount = 0;
+
+				var rectSize = 50;
+
+				// create viewport
+				var viewport = new pixi_viewport__WEBPACK_IMPORTED_MODULE_0___default.a({
+					screenWidth: clientWidth,
+					screenHeight: clientHeight,
+					worldWidth: this.image.width * rectSize,
+					worldHeight: this.image.height * rectSize
+				});
+
+				app.stage.addChild(viewport);
+
+				viewport.drag() // enable drag
+				.wheel() // enable zoom on mouse wheel
+				.pinch() // enable zoom on pinch
+				.bounce() // ??
+				.decelerate() // ??
+				.clamp({}) // don't allow to drag outside
+				.clampZoom({ // don't allow to zoom too much
+					minWidth: 400,
+					maxWidth: this.image.width * rectSize * 1.5
+				}).fit();
+
+				// check regulary if scale is large enough to change view
+				// @todo clearInterval on destroy
+				setInterval(function () {
+					if (viewport.transform.scale._x > 0.3) {
+						background.visible = false;
+						backgroundZoomed.visible = true;
+					} else {
+						background.visible = true;
+						backgroundZoomed.visible = false;
+					}
+				}, 100);
+
+				// draw images
+
+				//var background = new PIXI.Graphics();
+
+				var basetexture = new PIXI.BaseTexture(this.image.canvases.light, PIXI.SCALE_MODES.NEAREST, 1 / rectSize);
+				var texture = new PIXI.Texture(basetexture);
+				var background = new PIXI.Sprite(texture);
+				var bckZoomedSprite = new PIXI.Sprite(texture);
+
+				//background.
+				var backgroundZoomed = new PIXI.Graphics();
+				backgroundZoomed.addChild(bckZoomedSprite);
+				var front = new PIXI.Graphics();
+				for (var y = 0; y < this.image.height; y++) {
+					for (var x = 0; x < this.image.width; x++) {
+
+						if (this.image.pixels.clean[x][y] - 1 === -1) continue;
+
+						pixelsToColorCount++;
+
+						let txt = new PIXI.Text(this.image.pixels.clean[x][y], { fontFamily: 'Verdana', fontSize: 24, fill: this.image.palettes.dark[this.image.pixels.clean[x][y] - 1].toNumber(), align: 'center' });
+						txt.x = (x + 0.5) * rectSize - txt.width / 2;
+						txt.y = (y + 0.5) * rectSize - txt.height / 2;
+						backgroundZoomed.addChild(txt);
+					}
+				}
+
+				// now we can cache rendered maps
+				backgroundZoomed.cacheAsBitmap = true;
+
+				viewport.addChild(background);
+				viewport.addChild(backgroundZoomed);
+				viewport.addChild(front);
+
+				backgroundZoomed.visible = false;
+
+				var lastColoredPixelX = -1,
+				    lastColoredPixelY = -1,
+				    lastColoredPixelTime = -1000;
+
+				var fillPixel = function (x, y, flood = false, floodColor = null) {
+					if (x < 0 || y < 0 || x >= T.image.width || y >= T.image.height) return;
+					if (T.image.pixels.clean[x][y] - 1 === -1) return;
+					if (T.image.pixels.clean[x][y] - 1 !== T.selectedColor) {
+						if (!flood) return;
+						if (T.image.pixels.clean[x][y] - 1 !== floodColor) return;
+					}
+
+					if (!flood) {
+						var newColoredPixelTime = Date.now();
+						if (newColoredPixelTime - lastColoredPixelTime < 300 && lastColoredPixelX === x && lastColoredPixelY === y) {
+							floodColor = T.selectedColor;
+							var floodTimeout = setTimeout(function () {
+								fillPixel(x - 1, y, true, floodColor);
+								fillPixel(x, y - 1, true, floodColor);
+								fillPixel(x + 1, y, true, floodColor);
+								fillPixel(x, y + 1, true, floodColor);
+							}, 100);
+						}
+						lastColoredPixelTime = newColoredPixelTime;
+						lastColoredPixelX = x;
+						lastColoredPixelY = y;
+					}
+
+					if (T.image.pixels.colored[x][y] === 1) return;
+
+					if (flood) {
 						var floodTimeout = setTimeout(function () {
 							fillPixel(x - 1, y, true, floodColor);
 							fillPixel(x, y - 1, true, floodColor);
@@ -564,77 +586,64 @@ tinycolor2__WEBPACK_IMPORTED_MODULE_1___default.a.prototype.toNumber = function 
 							fillPixel(x, y + 1, true, floodColor);
 						}, 100);
 					}
-					lastColoredPixelTime = newColoredPixelTime;
-					lastColoredPixelX = x;
-					lastColoredPixelY = y;
-				}
 
-				if (T.image.pixels.colored[x][y] === 1) return;
+					T.image.pixels.colored[x][y] = 1;
+					coloredPixelsCount++;
 
-				if (flood) {
-					var floodTimeout = setTimeout(function () {
-						fillPixel(x - 1, y, true, floodColor);
-						fillPixel(x, y - 1, true, floodColor);
-						fillPixel(x + 1, y, true, floodColor);
-						fillPixel(x, y + 1, true, floodColor);
-					}, 100);
-				}
+					var endFill = function () {
 
-				T.image.pixels.colored[x][y] = 1;
-				coloredPixelsCount++;
+						front.cacheAsBitmap = false;
 
-				var endFill = function () {
+						front.beginFill(T.image.palettes.colors[T.image.pixels.clean[x][y] - 1].toNumber());
+						front.drawRect(x * rectSize, y * rectSize, rectSize, rectSize);
+						front.endFill();
 
-					front.cacheAsBitmap = false;
+						front.cacheAsBitmap = true;
 
-					front.beginFill(T.image.palettes.colors[T.image.pixels.clean[x][y] - 1].toNumber());
-					front.drawRect(x * rectSize, y * rectSize, rectSize, rectSize);
-					front.endFill();
+						viewport.removeChild(clip);
+						viewport.removeChild(mask);
 
-					front.cacheAsBitmap = true;
+						if (coloredPixelsCount >= pixelsToColorCount) {
+							console.log('Congratulations! Level complete!');
+						}
+					};
+					var clip = new PIXI.Graphics();
+					var mask = new PIXI.Graphics();
 
-					viewport.removeChild(clip);
-					viewport.removeChild(mask);
+					mask.isMask = true;
+					mask.beginFill(T.image.palettes.colors[T.image.pixels.clean[x][y] - 1].toNumber());
+					mask.drawRect(x * rectSize, y * rectSize, rectSize, rectSize);
+					mask.x = mask.y = 0;
+					mask.endFill();
 
-					if (coloredPixelsCount >= pixelsToColorCount) {
-						console.log('Congratulations! Level complete!');
+					viewport.addChild(mask);
+
+					clip.beginFill(T.image.palettes.colors[T.image.pixels.clean[x][y] - 1].toNumber());
+					clip.drawCircle(0, 0, rectSize);
+					clip.endFill();
+					clip.x = (x + 0.5) * rectSize;
+					clip.y = (y + 0.5) * rectSize;
+					clip.scale = new PIXI.Point(0, 0);
+					clip.mask = mask;
+
+					viewport.addChild(clip);
+
+					gsap__WEBPACK_IMPORTED_MODULE_2__["TweenLite"].to(clip.scale, 0.7, { x: 1, y: 1, onComplete: endFill });
+				};
+
+				var tap = function (e) {
+					let point = e.data.getLocalPosition(viewport);
+					let x = Math.floor(point.x / rectSize);
+					let y = Math.floor(point.y / rectSize);
+					if (x >= 0 && x < T.image.width && y >= 0 && y < T.image.height) {
+						fillPixel(x, y);
 					}
 				};
-				var clip = new PIXI.Graphics();
-				var mask = new PIXI.Graphics();
 
-				mask.isMask = true;
-				mask.beginFill(T.image.palettes.colors[T.image.pixels.clean[x][y] - 1].toNumber());
-				mask.drawRect(x * rectSize, y * rectSize, rectSize, rectSize);
-				mask.x = mask.y = 0;
-				mask.endFill();
-
-				viewport.addChild(mask);
-
-				clip.beginFill(T.image.palettes.colors[T.image.pixels.clean[x][y] - 1].toNumber());
-				clip.drawCircle(0, 0, rectSize);
-				clip.endFill();
-				clip.x = (x + 0.5) * rectSize;
-				clip.y = (y + 0.5) * rectSize;
-				clip.scale = new PIXI.Point(0, 0);
-				clip.mask = mask;
-
-				viewport.addChild(clip);
-
-				gsap__WEBPACK_IMPORTED_MODULE_2__["TweenLite"].to(clip.scale, 0.7, { x: 1, y: 1, onComplete: endFill });
-			};
-
-			var tap = function (e) {
-				let point = e.data.getLocalPosition(viewport);
-				let x = Math.floor(point.x / rectSize);
-				let y = Math.floor(point.y / rectSize);
-				if (x >= 0 && x < T.image.width && y >= 0 && y < T.image.height) {
-					fillPixel(x, y);
-				}
-			};
-
-			viewport.on('tap', tap);
-			viewport.on('click', tap);
+				viewport.on('tap', tap);
+				viewport.on('click', tap);
+				this.$emit('render-complete');
+			}, 1);
 		}
 	}
 });
@@ -694,6 +703,11 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
 
 
 
@@ -706,8 +720,14 @@ __webpack_require__.r(__webpack_exports__);
 			}
 		}
 	},
+	data: function () {
+		return {
+			showPreloader: true
+		};
+	},
 	watch: {
 		image: function (val) {
+			this.showPreloader = true;
 			this.update();
 		}
 	},
@@ -726,6 +746,7 @@ __webpack_require__.r(__webpack_exports__);
 			var x = newWidth < canvas.width ? (canvas.width - newWidth) / 2 : 0;
 			var y = newHeight < canvas.height ? (canvas.height - newHeight) / 2 : 0;
 			pixelatedContext.drawImage(this.image.canvases.light, 0, 0, this.image.width, this.image.height, x, y, newWidth, newHeight);
+			this.showPreloader = false;
 		}
 	},
 	mounted: function () {
@@ -739,6 +760,27 @@ __webpack_require__.r(__webpack_exports__);
 		this.update();
 	}
 });
+
+/***/ }),
+
+/***/ "./node_modules/babel-loader/lib/index.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/Preloader.vue?vue&type=script&lang=js":
+/*!************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib!./node_modules/vue-loader/lib??vue-loader-options!./src/Components/Preloader.vue?vue&type=script&lang=js ***!
+  \************************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({});
 
 /***/ }),
 
@@ -1027,7 +1069,7 @@ exports = module.exports = __webpack_require__(/*! ../../node_modules/css-loader
 
 
 // module
-exports.push([module.i, "\n.game {\r\n\tposition:absolute;\r\n\tleft:0;top:0;bottom:0;right:0;\n}\n.link-back {\r\n\tposition: absolute;\r\n\tleft: 5px;\r\n\ttop: 5px;\r\n\tcolor: #222;\r\n\tbackground: #f0f0f0;\r\n\twidth:40px; height: 40px;\r\n\tline-height: 40px;\r\n\ttext-align: center;\r\n\tborder-radius: 50%;\r\n\tz-index: 1;\n}\n.link-back .arrow {\r\n\tposition: relative;\r\n\ttop: 15px;\n}\n.arrow {\r\n    border: solid black;\r\n    border-width: 0 1px 1px 0;\r\n    display: inline-block;\r\n    width: 7px;\r\n    height: 7px;\n}\n.right {\r\n    transform: rotate(-45deg);\r\n    -webkit-transform: rotate(-45deg);\n}\n.left {\r\n    transform: rotate(135deg);\r\n    -webkit-transform: rotate(135deg);\n}\n.up {\r\n    transform: rotate(-135deg);\r\n    -webkit-transform: rotate(-135deg);\n}\n.down {\r\n    transform: rotate(45deg);\r\n    -webkit-transform: rotate(45deg);\n}\r\n", ""]);
+exports.push([module.i, "\n.game {\r\n\tposition:relative;\r\n\twidth:100%;height: 100%;\n}\n.game-content {\r\n\tposition:absolute;\r\n\tleft:0px;top:0px;\r\n\twidth:100%;\r\n\theight: 100%;\n}\n.link-back {\r\n\tposition: absolute;\r\n\tleft: 5px;\r\n\ttop: 5px;\r\n\tcolor: #222;\r\n\tbackground: #f0f0f0;\r\n\twidth:40px; height: 40px;\r\n\tline-height: 40px;\r\n\ttext-align: center;\r\n\tborder-radius: 50%;\r\n\tz-index: 1;\n}\n.link-back .arrow {\r\n\tposition: relative;\r\n\ttop: 15px;\n}\n.arrow {\r\n    border: solid black;\r\n    border-width: 0 1px 1px 0;\r\n    display: inline-block;\r\n    width: 7px;\r\n    height: 7px;\n}\n.right {\r\n    transform: rotate(-45deg);\r\n    -webkit-transform: rotate(-45deg);\n}\n.left {\r\n    transform: rotate(135deg);\r\n    -webkit-transform: rotate(135deg);\n}\n.up {\r\n    transform: rotate(-135deg);\r\n    -webkit-transform: rotate(-135deg);\n}\n.down {\r\n    transform: rotate(45deg);\r\n    -webkit-transform: rotate(45deg);\n}\r\n", ""]);
 
 // exports
 
@@ -1084,7 +1126,26 @@ exports = module.exports = __webpack_require__(/*! ../../node_modules/css-loader
 
 
 // module
-exports.push([module.i, "\n.images-menu-item {\n\tposition: relative;\n\twidth: 48%;\n\tmin-width: 100px;\n\tmax-width: 200px; \n\tdisplay: inline-block;\n\tmargin: 1%;\n\tbackground-color:#f9f9f9;\n}\n.images-menu-item:after {\n\tcontent: \"\";\n\tdisplay: block;\n\tpadding-bottom: 100%;\n}\n\n", ""]);
+exports.push([module.i, "\n.images-menu-item {\n\t\tposition: relative;\n    \toverflow: hidden;\t\t\n\t\twidth: 48%;\n\t\tmin-width: 100px;\n\t\tmax-width: 200px; \n\t\tdisplay: inline-block;\n\t\tmargin: 1%;\n\t\tbackground-color:#f9f9f9;\n}\n.images-menu-item:before{\n\t    content: \"\";\n\t    display: block;\n\t    padding-top: 100%;\n}\n.images-menu-item-content {\n\t\tposition: absolute;\n\t\twidth:100%;\n\t\ttop:0;left:0;\n}\n.images-menu-item canvas{\n\t\twidth:100%;\n}\n\n", ""]);
+
+// exports
+
+
+/***/ }),
+
+/***/ "./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/Preloader.vue?vue&type=style&index=0&lang=css":
+/*!***********************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/css-loader!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/vue-loader/lib??vue-loader-options!./src/Components/Preloader.vue?vue&type=style&index=0&lang=css ***!
+  \***********************************************************************************************************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(/*! ../../node_modules/css-loader/lib/css-base.js */ "./node_modules/css-loader/lib/css-base.js")(false);
+// imports
+
+
+// module
+exports.push([module.i, "\n.cssload-square {\r\n\tposition:absolute;\r\n\tleft:50%; top:50%;\r\n\tmargin: -8px -8px;\r\n\twidth: 18px;\r\n\theight: 18px;\r\n\ttransform: rotate(-45deg);\r\n\t\t-o-transform: rotate(-45deg);\r\n\t\t-ms-transform: rotate(-45deg);\r\n\t\t-webkit-transform: rotate(-45deg);\r\n\t\t-moz-transform: rotate(-45deg);\n}\n.cssload-square-part {\r\n\tposition: absolute;\r\n\twidth: 18px;\r\n\theight: 18px;\r\n\tz-index: 1;\r\n\tanimation: cssload-part-anim 0.92s cubic-bezier(0.445, 0.05, 0.55, 0.95) infinite alternate;\r\n\t\t-o-animation: cssload-part-anim 0.92s cubic-bezier(0.445, 0.05, 0.55, 0.95) infinite alternate;\r\n\t\t-ms-animation: cssload-part-anim 0.92s cubic-bezier(0.445, 0.05, 0.55, 0.95) infinite alternate;\r\n\t\t-webkit-animation: cssload-part-anim 0.92s cubic-bezier(0.445, 0.05, 0.55, 0.95) infinite alternate;\r\n\t\t-moz-animation: cssload-part-anim 0.92s cubic-bezier(0.445, 0.05, 0.55, 0.95) infinite alternate;\n}\n.cssload-square-green {\r\n\tbackground: rgb(84,250,212);\r\n\tright: 0;\r\n\tbottom: 0;\r\n\tanimation-direction: alternate-reverse;\r\n\t\t-o-animation-direction: alternate-reverse;\r\n\t\t-ms-animation-direction: alternate-reverse;\r\n\t\t-webkit-animation-direction: alternate-reverse;\r\n\t\t-moz-animation-direction: alternate-reverse;\n}\n.cssload-square-pink {\r\n\tbackground: rgb(233,111,146);\r\n\tleft: 0;\r\n\ttop: 0;\n}\n.cssload-square-blend {\r\n\tbackground: rgb(117,81,125);\r\n\tposition: absolute;\r\n\ttop: 0;\r\n\tleft: 0;\r\n\tbottom: 0;\r\n\tright: 0;\r\n\tz-index: 2;\r\n\tanimation: blend-anim 0.92s ease-in infinite;\r\n\t\t-o-animation: blend-anim 0.92s ease-in infinite;\r\n\t\t-ms-animation: blend-anim 0.92s ease-in infinite;\r\n\t\t-webkit-animation: blend-anim 0.92s ease-in infinite;\r\n\t\t-moz-animation: blend-anim 0.92s ease-in infinite;\n}\n@keyframes blend-anim {\n0% {\r\n\t\ttransform: scale(0.01, 0.01) rotateY(0);\r\n\t\tanimation-timing-function: cubic-bezier(0.47, 0, 0.745, 0.715);\n}\n50% {\r\n\t\ttransform: scale(1, 1) rotateY(0);\r\n\t\tanimation-timing-function: cubic-bezier(0.39, 0.575, 0.565, 1);\n}\n100% {\r\n\t\ttransform: scale(0.01, 0.01) rotateY(0);\n}\n}\n@-o-keyframes blend-anim {\n0% {\r\n\t\t-o-transform: scale(0.01, 0.01) rotateY(0);\r\n\t\t-o-animation-timing-function: cubic-bezier(0.47, 0, 0.745, 0.715);\n}\n50% {\r\n\t\t-o-transform: scale(1, 1) rotateY(0);\r\n\t\t-o-animation-timing-function: cubic-bezier(0.39, 0.575, 0.565, 1);\n}\n100% {\r\n\t\t-o-transform: scale(0.01, 0.01) rotateY(0);\n}\n}\n@-ms-keyframes blend-anim {\n0% {\r\n\t\t-ms-transform: scale(0.01, 0.01) rotateY(0);\r\n\t\t-ms-animation-timing-function: cubic-bezier(0.47, 0, 0.745, 0.715);\n}\n50% {\r\n\t\t-ms-transform: scale(1, 1) rotateY(0);\r\n\t\t-ms-animation-timing-function: cubic-bezier(0.39, 0.575, 0.565, 1);\n}\n100% {\r\n\t\t-ms-transform: scale(0.01, 0.01) rotateY(0);\n}\n}\n@-webkit-keyframes blend-anim {\n0% {\r\n\t\t-webkit-transform: scale(0.01, 0.01) rotateY(0);\r\n\t\t-webkit-animation-timing-function: cubic-bezier(0.47, 0, 0.745, 0.715);\n}\n50% {\r\n\t\t-webkit-transform: scale(1, 1) rotateY(0);\r\n\t\t-webkit-animation-timing-function: cubic-bezier(0.39, 0.575, 0.565, 1);\n}\n100% {\r\n\t\t-webkit-transform: scale(0.01, 0.01) rotateY(0);\n}\n}\n@-moz-keyframes blend-anim {\n0% {\r\n\t\t-moz-transform: scale(0.01, 0.01) rotateY(0);\r\n\t\t-moz-animation-timing-function: cubic-bezier(0.47, 0, 0.745, 0.715);\n}\n50% {\r\n\t\t-moz-transform: scale(1, 1) rotateY(0);\r\n\t\t-moz-animation-timing-function: cubic-bezier(0.39, 0.575, 0.565, 1);\n}\n100% {\r\n\t\t-moz-transform: scale(0.01, 0.01) rotateY(0);\n}\n}\n@keyframes cssload-part-anim {\n0% {\r\n\t\ttransform: translate3d(-10px, -10px, 0);\n}\n100% {\r\n\t\ttransform: translate3d(10px, 10px, 0);\n}\n}\n@-o-keyframes cssload-part-anim {\n0% {\r\n\t\t-o-transform: translate3d(-10px, -10px, 0);\n}\n100% {\r\n\t\t-o-transform: translate3d(10px, 10px, 0);\n}\n}\n@-ms-keyframes cssload-part-anim {\n0% {\r\n\t\t-ms-transform: translate3d(-10px, -10px, 0);\n}\n100% {\r\n\t\t-ms-transform: translate3d(10px, 10px, 0);\n}\n}\n@-webkit-keyframes cssload-part-anim {\n0% {\r\n\t\t-webkit-transform: translate3d(-10px, -10px, 0);\n}\n100% {\r\n\t\t-webkit-transform: translate3d(10px, 10px, 0);\n}\n}\n@-moz-keyframes cssload-part-anim {\n0% {\r\n\t\t-moz-transform: translate3d(-10px, -10px, 0);\n}\n100% {\r\n\t\t-moz-transform: translate3d(10px, 10px, 0);\n}\n}\r\n", ""]);
 
 // exports
 
@@ -59580,25 +59641,49 @@ var render = function() {
   var _c = _vm._self._c || _h
   return _c(
     "div",
-    { staticClass: "game" },
+    { ref: "game", staticClass: "game" },
     [
+      _vm.showPreloader ? _c("preloader") : _vm._e(),
+      _vm._v(" "),
       _c("div", { staticClass: "link-back", on: { click: _vm.navigateBack } }, [
         _c("i", { staticClass: "arrow left" })
       ]),
       _vm._v(" "),
-      _c("GameCanvas", {
-        ref: "canvas",
-        attrs: {
-          palette: _vm.palette,
-          image: _vm.image,
-          selectedColor: _vm.selectedColor
-        }
-      }),
-      _vm._v(" "),
-      _c("ColorPicker", {
-        attrs: { palette: _vm.palette, selectedColor: _vm.selectedColor },
-        on: { setColor: _vm.changeColor }
-      })
+      _c(
+        "div",
+        {
+          directives: [
+            {
+              name: "show",
+              rawName: "v-show",
+              value: !_vm.showPreloader,
+              expression: "!showPreloader"
+            }
+          ],
+          staticClass: "game-content"
+        },
+        [
+          _c("GameCanvas", {
+            ref: "canvas",
+            attrs: {
+              palette: _vm.palette,
+              image: _vm.image,
+              selectedColor: _vm.selectedColor
+            },
+            on: {
+              "render-complete": function($event) {
+                _vm.showPreloader = false
+              }
+            }
+          }),
+          _vm._v(" "),
+          _c("ColorPicker", {
+            attrs: { palette: _vm.palette, selectedColor: _vm.selectedColor },
+            on: { setColor: _vm.changeColor }
+          })
+        ],
+        1
+      )
     ],
     1
   )
@@ -59686,17 +59771,78 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("canvas", {
-    ref: "canvas",
-    staticClass: "images-menu-item",
-    on: {
-      click: function($event) {
-        _vm.$emit("select")
-      }
-    }
-  })
+  return _c(
+    "div",
+    { staticClass: "images-menu-item" },
+    [
+      _vm.showPreloader ? _c("preloader") : _vm._e(),
+      _vm._v(" "),
+      _c(
+        "div",
+        {
+          directives: [
+            {
+              name: "show",
+              rawName: "v-show",
+              value: !_vm.showPreloader,
+              expression: "!showPreloader"
+            }
+          ],
+          staticClass: "images-menu-item-content"
+        },
+        [
+          _c("canvas", {
+            ref: "canvas",
+            on: {
+              click: function($event) {
+                _vm.$emit("select")
+              }
+            }
+          })
+        ]
+      )
+    ],
+    1
+  )
 }
 var staticRenderFns = []
+render._withStripped = true
+/* hot reload */
+if (false) { var api; }
+
+/***/ }),
+
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/Preloader.vue?vue&type=template&id=2b39e4d4":
+/*!**************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./src/Components/Preloader.vue?vue&type=template&id=2b39e4d4 ***!
+  \**************************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _vm._m(0)
+}
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "cssload-square" }, [
+      _c("div", { staticClass: "cssload-square-part cssload-square-green" }),
+      _vm._v(" "),
+      _c("div", { staticClass: "cssload-square-part cssload-square-pink" }),
+      _vm._v(" "),
+      _c("div", { staticClass: "cssload-square-blend" })
+    ])
+  }
+]
 render._withStripped = true
 /* hot reload */
 if (false) { var api; }
@@ -62588,6 +62734,27 @@ if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
 var add = __webpack_require__(/*! ../../node_modules/vue-style-loader/lib/addStylesClient.js */ "./node_modules/vue-style-loader/lib/addStylesClient.js").default
 var update = add("acfe7758", content, false, {});
+// Hot Module Replacement
+if(false) {}
+
+/***/ }),
+
+/***/ "./node_modules/vue-style-loader/index.js!./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/Preloader.vue?vue&type=style&index=0&lang=css":
+/*!*******************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-style-loader!./node_modules/css-loader!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/vue-loader/lib??vue-loader-options!./src/Components/Preloader.vue?vue&type=style&index=0&lang=css ***!
+  \*******************************************************************************************************************************************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(/*! !../../node_modules/css-loader!../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../node_modules/vue-loader/lib??vue-loader-options!./Preloader.vue?vue&type=style&index=0&lang=css */ "./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/Preloader.vue?vue&type=style&index=0&lang=css");
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var add = __webpack_require__(/*! ../../node_modules/vue-style-loader/lib/addStylesClient.js */ "./node_modules/vue-style-loader/lib/addStylesClient.js").default
+var update = add("196f4448", content, false, {});
 // Hot Module Replacement
 if(false) {}
 
@@ -75569,6 +75736,93 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./src/Components/Preloader.vue":
+/*!**************************************!*\
+  !*** ./src/Components/Preloader.vue ***!
+  \**************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _Preloader_vue_vue_type_template_id_2b39e4d4__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Preloader.vue?vue&type=template&id=2b39e4d4 */ "./src/Components/Preloader.vue?vue&type=template&id=2b39e4d4");
+/* harmony import */ var _Preloader_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Preloader.vue?vue&type=script&lang=js */ "./src/Components/Preloader.vue?vue&type=script&lang=js");
+/* empty/unused harmony star reexport *//* harmony import */ var _Preloader_vue_vue_type_style_index_0_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Preloader.vue?vue&type=style&index=0&lang=css */ "./src/Components/Preloader.vue?vue&type=style&index=0&lang=css");
+/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__["default"])(
+  _Preloader_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"],
+  _Preloader_vue_vue_type_template_id_2b39e4d4__WEBPACK_IMPORTED_MODULE_0__["render"],
+  _Preloader_vue_vue_type_template_id_2b39e4d4__WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  null,
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "src/Components/Preloader.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./src/Components/Preloader.vue?vue&type=script&lang=js":
+/*!**************************************************************!*\
+  !*** ./src/Components/Preloader.vue?vue&type=script&lang=js ***!
+  \**************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_node_modules_vue_loader_lib_index_js_vue_loader_options_Preloader_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../node_modules/babel-loader/lib!../../node_modules/vue-loader/lib??vue-loader-options!./Preloader.vue?vue&type=script&lang=js */ "./node_modules/babel-loader/lib/index.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/Preloader.vue?vue&type=script&lang=js");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_node_modules_vue_loader_lib_index_js_vue_loader_options_Preloader_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./src/Components/Preloader.vue?vue&type=style&index=0&lang=css":
+/*!**********************************************************************!*\
+  !*** ./src/Components/Preloader.vue?vue&type=style&index=0&lang=css ***!
+  \**********************************************************************/
+/*! no static exports found */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_vue_loader_lib_index_js_vue_loader_options_Preloader_vue_vue_type_style_index_0_lang_css__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../node_modules/vue-style-loader!../../node_modules/css-loader!../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../node_modules/vue-loader/lib??vue-loader-options!./Preloader.vue?vue&type=style&index=0&lang=css */ "./node_modules/vue-style-loader/index.js!./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/Preloader.vue?vue&type=style&index=0&lang=css");
+/* harmony import */ var _node_modules_vue_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_vue_loader_lib_index_js_vue_loader_options_Preloader_vue_vue_type_style_index_0_lang_css__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_vue_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_vue_loader_lib_index_js_vue_loader_options_Preloader_vue_vue_type_style_index_0_lang_css__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _node_modules_vue_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_vue_loader_lib_index_js_vue_loader_options_Preloader_vue_vue_type_style_index_0_lang_css__WEBPACK_IMPORTED_MODULE_0__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _node_modules_vue_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_vue_loader_lib_index_js_vue_loader_options_Preloader_vue_vue_type_style_index_0_lang_css__WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
+ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_vue_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_vue_loader_lib_index_js_vue_loader_options_Preloader_vue_vue_type_style_index_0_lang_css__WEBPACK_IMPORTED_MODULE_0___default.a); 
+
+/***/ }),
+
+/***/ "./src/Components/Preloader.vue?vue&type=template&id=2b39e4d4":
+/*!********************************************************************!*\
+  !*** ./src/Components/Preloader.vue?vue&type=template&id=2b39e4d4 ***!
+  \********************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Preloader_vue_vue_type_template_id_2b39e4d4__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../node_modules/vue-loader/lib??vue-loader-options!./Preloader.vue?vue&type=template&id=2b39e4d4 */ "./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/Preloader.vue?vue&type=template&id=2b39e4d4");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Preloader_vue_vue_type_template_id_2b39e4d4__WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Preloader_vue_vue_type_template_id_2b39e4d4__WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
+
+/***/ }),
+
 /***/ "./src/Main.js":
 /*!*********************!*\
   !*** ./src/Main.js ***!
@@ -75579,8 +75833,11 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js");
-/* harmony import */ var _App_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./App.vue */ "./src/App.vue");
+/* harmony import */ var _Components_Preloader_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Components/Preloader.vue */ "./src/Components/Preloader.vue");
+/* harmony import */ var _App_vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./App.vue */ "./src/App.vue");
 
+
+vue__WEBPACK_IMPORTED_MODULE_0__["default"].component("preloader", _Components_Preloader_vue__WEBPACK_IMPORTED_MODULE_1__["default"]);
 
 
 window.globals = {
@@ -75590,7 +75847,7 @@ window.globals = {
 new vue__WEBPACK_IMPORTED_MODULE_0__["default"]({
   el: '#app',
   template: '<App/>',
-  components: { App: _App_vue__WEBPACK_IMPORTED_MODULE_1__["default"] }
+  components: { App: _App_vue__WEBPACK_IMPORTED_MODULE_2__["default"] }
 });
 
 /***/ }),

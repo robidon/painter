@@ -1,5 +1,10 @@
 <template>
-	<canvas class="images-menu-item" ref="canvas" v-on:click="$emit('select')"></canvas>
+	<div class="images-menu-item">
+		<preloader v-if="showPreloader"></preloader>
+		<div v-show="!showPreloader" class="images-menu-item-content">
+			<canvas ref="canvas" v-on:click="$emit('select')"></canvas>
+		</div>
+	</div>
 </template>
 
 <script>
@@ -12,8 +17,14 @@ export default {
 			default: function () { return {}; } 
 		}
 	},
+	data: function () {
+		return {
+			showPreloader: true
+		}
+	},
 	watch: {
 		image: function (val) {
+			this.showPreloader = true;
 			this.update();
 		}
 	},
@@ -32,6 +43,7 @@ export default {
 			var x = (newWidth<canvas.width) ? ((canvas.width - newWidth)/2) : 0;
 			var y = (newHeight<canvas.height) ? ((canvas.height - newHeight)/2) : 0;
 			pixelatedContext.drawImage(this.image.canvases.light, 0, 0, this.image.width, this.image.height, x, y, newWidth, newHeight);
+			this.showPreloader = false;
 		}		
 	},
 	mounted: function () {
@@ -50,6 +62,7 @@ export default {
 <style>
 	.images-menu-item {
 		position: relative;
+    	overflow: hidden;		
 		width: 48%;
 		min-width: 100px;
 		max-width: 200px; 
@@ -57,10 +70,18 @@ export default {
 		margin: 1%;
 		background-color:#f9f9f9;
 	}
-	.images-menu-item:after {
-		content: "";
-		display: block;
-		padding-bottom: 100%;
+	.images-menu-item:before{
+	    content: "";
+	    display: block;
+	    padding-top: 100%;
+	}
+	.images-menu-item-content {
+		position: absolute;
+		width:100%;
+		top:0;left:0;
+	}
+	.images-menu-item canvas{
+		width:100%;
 	}
 
 </style>
