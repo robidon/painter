@@ -631,8 +631,8 @@ tinycolor2__WEBPACK_IMPORTED_MODULE_1___default.a.prototype.toNumber = function 
 					gsap__WEBPACK_IMPORTED_MODULE_2__["TweenLite"].to(clip.scale, 0.7, { x: 1, y: 1, onComplete: endFill });
 				};
 
-				var tap = function (e) {
-					let point = e.data.getLocalPosition(viewport);
+				var tap = function (point) {
+					//let  = e.data.getLocalPosition(viewport);
 					let x = Math.floor(point.x / rectSize);
 					let y = Math.floor(point.y / rectSize);
 					if (x >= 0 && x < T.image.width && y >= 0 && y < T.image.height) {
@@ -640,7 +640,17 @@ tinycolor2__WEBPACK_IMPORTED_MODULE_1___default.a.prototype.toNumber = function 
 					}
 				};
 
-				viewport.on('tap', tap);
+				var tapPoint;
+				viewport.on('touchstart', function (e) {
+					tapPoint = { x: e.data.global.x, y: e.data.global.y };
+				});
+				viewport.on('touchend', function (e) {
+					let newPoint = e.data.global;
+					if (Math.abs(tapPoint.x - newPoint.x) < 10 && Math.abs(tapPoint.y - newPoint.y) < 10) {
+						tap(e.data.getLocalPosition(viewport));
+					}
+				});
+
 				viewport.on('click', tap);
 				this.$emit('render-complete');
 			}, 1);
