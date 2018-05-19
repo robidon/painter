@@ -383,13 +383,22 @@ __webpack_require__.r(__webpack_exports__);
 	},
 	created: function () {},
 	mounted: function () {
-		this.$refs.canvas.render(this.$refs.game.clientWidth, this.$refs.game.clientHeight - 70);
+		setTimeout(() => {
+			this.selectedColor = 0;
+			this.showPreloader = true;
+			this.$refs.canvas.render(this.$refs.game.clientWidth, this.$refs.game.clientHeight - 70);
+		}, 0);
 	},
 	methods: {
+		renderComplete: function () {
+			this.showPreloader = false;
+		},
 		changeColor: function (newColorIndex) {
 			this.selectedColor = newColorIndex;
 		},
 		navigateBack: function () {
+			this.selectedColor = 0;
+			this.showPreloader = true;
 			this.$router.push("/imagesmenu");
 		}
 	},
@@ -428,6 +437,7 @@ __webpack_require__.r(__webpack_exports__);
 tinycolor2__WEBPACK_IMPORTED_MODULE_1___default.a.prototype.toNumber = function () {
 	return (Math.round(this._r) << 16) + (Math.round(this._g) << 8) + Math.round(this._b);
 };
+let checkZoomInterval = 0;
 /* harmony default export */ __webpack_exports__["default"] = ({
 	props: {
 		palette: {
@@ -449,6 +459,7 @@ tinycolor2__WEBPACK_IMPORTED_MODULE_1___default.a.prototype.toNumber = function 
 	},
 	mounted: function () {},
 	methods: {
+		stop: function () {},
 		render: function (clientWidth, clientHeight) {
 			setTimeout(() => {
 				let T = this;
@@ -460,7 +471,7 @@ tinycolor2__WEBPACK_IMPORTED_MODULE_1___default.a.prototype.toNumber = function 
 				let app = new PIXI.Application({
 					width: 256,
 					height: 256,
-					antialias: true,
+					antialias: false,
 					transparent: false,
 					resolution: 1
 				});
@@ -502,26 +513,25 @@ tinycolor2__WEBPACK_IMPORTED_MODULE_1___default.a.prototype.toNumber = function 
 
 				// check regulary if scale is large enough to change view
 				// @todo clearInterval on destroy
-				setInterval(function () {
+				clearInterval(checkZoomInterval);
+				checkZoomInterval = setInterval(function () {
 					if (viewport.transform.scale._x > 0.3) {
-						background.visible = false;
-						backgroundZoomed.visible = true;
+						if (viewport.getChildIndex(background) > viewport.getChildIndex(backgroundZoomed)) {
+							viewport.swapChildren(background, backgroundZoomed);
+						}
 					} else {
-						background.visible = true;
-						backgroundZoomed.visible = false;
+						if (viewport.getChildIndex(background) < viewport.getChildIndex(backgroundZoomed)) {
+							viewport.swapChildren(background, backgroundZoomed);
+						}
 					}
 				}, 100);
 
 				// draw images
-
-				//var background = new PIXI.Graphics();
-
 				var basetexture = new PIXI.BaseTexture(this.image.canvases.light, PIXI.SCALE_MODES.NEAREST, 1 / rectSize);
 				var texture = new PIXI.Texture(basetexture);
 				var background = new PIXI.Sprite(texture);
 				var bckZoomedSprite = new PIXI.Sprite(texture);
 
-				//background.
 				var backgroundZoomed = new PIXI.Graphics();
 				backgroundZoomed.addChild(bckZoomedSprite);
 				var front = new PIXI.Graphics();
@@ -545,8 +555,6 @@ tinycolor2__WEBPACK_IMPORTED_MODULE_1___default.a.prototype.toNumber = function 
 				viewport.addChild(background);
 				viewport.addChild(backgroundZoomed);
 				viewport.addChild(front);
-
-				backgroundZoomed.visible = false;
 
 				var lastColoredPixelX = -1,
 				    lastColoredPixelY = -1,
@@ -604,7 +612,7 @@ tinycolor2__WEBPACK_IMPORTED_MODULE_1___default.a.prototype.toNumber = function 
 						viewport.removeChild(mask);
 
 						if (coloredPixelsCount >= pixelsToColorCount) {
-							console.log('Congratulations! Level complete!');
+							T.$emit("levelComplete");
 						}
 					};
 					var clip = new PIXI.Graphics();
@@ -632,7 +640,6 @@ tinycolor2__WEBPACK_IMPORTED_MODULE_1___default.a.prototype.toNumber = function 
 				};
 
 				var tap = function (point) {
-					//let  = e.data.getLocalPosition(viewport);
 					let x = Math.floor(point.x / rectSize);
 					let y = Math.floor(point.y / rectSize);
 					if (x >= 0 && x < T.image.width && y >= 0 && y < T.image.height) {
@@ -652,6 +659,8 @@ tinycolor2__WEBPACK_IMPORTED_MODULE_1___default.a.prototype.toNumber = function 
 				});
 
 				viewport.on('click', tap);
+				app.render();
+
 				this.$emit('render-complete');
 			}, 1);
 		}
@@ -59680,11 +59689,7 @@ var render = function() {
               image: _vm.image,
               selectedColor: _vm.selectedColor
             },
-            on: {
-              "render-complete": function($event) {
-                _vm.showPreloader = false
-              }
-            }
+            on: { "render-complete": _vm.renderComplete }
           }),
           _vm._v(" "),
           _c("ColorPicker", {

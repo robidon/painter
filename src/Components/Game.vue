@@ -7,7 +7,7 @@
 				v-bind:palette="palette"
 				v-bind:image="image"
 				v-bind:selectedColor="selectedColor"
-				v-on:render-complete="showPreloader = false"></GameCanvas>
+				v-on:render-complete="renderComplete"></GameCanvas>
 			<ColorPicker
 				v-bind:palette="palette"
 				v-bind:selectedColor="selectedColor"
@@ -49,13 +49,22 @@ export default {
 
   	},
   	mounted: function () {
-		this.$refs.canvas.render(this.$refs.game.clientWidth, this.$refs.game.clientHeight-70);
+		setTimeout(()=>{
+			this.selectedColor = 0;
+	  		this.showPreloader = true;
+			this.$refs.canvas.render(this.$refs.game.clientWidth, this.$refs.game.clientHeight-70);
+	  	},0);
   	},
   	methods: {
+  		renderComplete: function () {
+  			this.showPreloader = false;
+  		},
   		changeColor:function (newColorIndex) {
   			this.selectedColor = newColorIndex;
   		},
   		navigateBack: function () {
+  			this.selectedColor = 0;
+	  		this.showPreloader = true;
   			this.$router.push("/imagesmenu");
   		}
   	},

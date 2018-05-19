@@ -11,6 +11,7 @@ import {TweenLite} from "gsap";
 Tinycolor.prototype.toNumber = function() {
         return (Math.round(this._r)<<16) + (Math.round(this._g)<<8) + (Math.round(this._b));
 }
+let checkZoomInterval = 0;
 export default {
 	props: {
 		palette: {
@@ -29,6 +30,9 @@ export default {
 	mounted: function () {
 	},
 	methods: {
+		stop: function () {
+			
+		},
 		render:function (clientWidth, clientHeight) {
 			setTimeout(()=>{
 				let T = this;
@@ -40,7 +44,7 @@ export default {
 				let app = new PIXI.Application({ 
 				    width: 256, 
 				    height: 256,                       
-				    antialias: true, 
+				    antialias: false, 
 				    transparent: false, 
 				    resolution: 1
 				  }
@@ -86,27 +90,26 @@ export default {
 				
 				// check regulary if scale is large enough to change view
 				// @todo clearInterval on destroy
-				setInterval(function () {
+				clearInterval(checkZoomInterval);
+				checkZoomInterval = setInterval(function () {
 					if (viewport.transform.scale._x>0.3) {
-						background.visible = false;
-						backgroundZoomed.visible = true;
+						if (viewport.getChildIndex(background)>viewport.getChildIndex(backgroundZoomed)) {
+							viewport.swapChildren(background, backgroundZoomed);
+						}
 					} else {
-						background.visible = true;
-						backgroundZoomed.visible = false;
+						if (viewport.getChildIndex(background)<viewport.getChildIndex(backgroundZoomed)) {
+							viewport.swapChildren(background, backgroundZoomed);
+						}
 					}
 				},100);
 
 
 				// draw images
-
-				//var background = new PIXI.Graphics();
-
 				var basetexture = new PIXI.BaseTexture(this.image.canvases.light, PIXI.SCALE_MODES.NEAREST, 1/rectSize);
 				var texture = new PIXI.Texture(basetexture);
 				var background = new PIXI.Sprite(texture);
 				var bckZoomedSprite = new PIXI.Sprite(texture);
 
-				//background.
 				var backgroundZoomed = new PIXI.Graphics();
 				backgroundZoomed.addChild(bckZoomedSprite);
 				var front = new PIXI.Graphics();
@@ -132,7 +135,6 @@ export default {
 				viewport.addChild(backgroundZoomed);
 				viewport.addChild(front);
 
-				backgroundZoomed.visible = false;
 
 				var lastColoredPixelX = -1,
 					lastColoredPixelY = -1,
@@ -192,7 +194,7 @@ export default {
 						viewport.removeChild(mask);
 
 						if (coloredPixelsCount >= pixelsToColorCount) {
-							console.log('Congratulations! Level complete!');
+							T.$emit("levelComplete");
 						}
 
 					}
@@ -222,7 +224,6 @@ export default {
 				}
 
 				var tap = function (point) {
-					//let  = e.data.getLocalPosition(viewport);
 					let x = Math.floor(point.x/rectSize);
 					let y = Math.floor(point.y/rectSize);
 					if (x >= 0 && x < T.image.width && y >=0 && y < T.image.height) {
@@ -242,6 +243,8 @@ export default {
 				});
 
 				viewport.on('click', tap);
+				app.render();
+				
 				this.$emit('render-complete');
 			},1);
 		}
