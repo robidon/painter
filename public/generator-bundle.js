@@ -13700,16 +13700,31 @@ __webpack_require__.r(__webpack_exports__);
 new vue__WEBPACK_IMPORTED_MODULE_0__["default"]({
 	el: '#app',
 	data: {
-		palette: []
+		path: "i/Emoji/alien-emoji-png-transparent-icon-2-clipart.png",
+		size: 6,
+		colors: 10,
+		image: undefined,
+		palette: [],
+		result: ""
 	},
-	created: function () {
-		var T = this;
-		var img = new Image();
-		img.src = 'i/Pile-of-Skulls-PNG-Clipart.png';
-		img.onload = function () {
-			draw(this);
-		};
-		function draw(img) {
+	watch: {
+		image: function () {
+			this.draw();
+		},
+		size: function () {
+			this.draw();
+		},
+		colors: function () {
+			this.draw();
+		},
+		path: function () {
+			this.load();
+		}
+	},
+	methods: {
+		draw: function () {
+			var img = this.image;
+			if (!img) return;
 			var sourceCanvas = document.getElementById('sourceCanvas');
 			var pixelatedCanvas = document.getElementById('pixelatedCanvas');
 			var resultCanvas = document.getElementById('resultCanvas');
@@ -13722,7 +13737,7 @@ new vue__WEBPACK_IMPORTED_MODULE_0__["default"]({
 
 			//draw result canvas
 			var resultContext = resultCanvas.getContext('2d');
-			var size = 1,
+			var size = this.size,
 			    w = Math.floor(pixelatedCanvas.width / size),
 			    h = Math.floor(pixelatedCanvas.height / size);
 			resultCanvas.width = w;
@@ -13730,7 +13745,7 @@ new vue__WEBPACK_IMPORTED_MODULE_0__["default"]({
 			resultContext.drawImage(img, 0, 0, w, h);
 			var sourceImageData = resultContext.getImageData(0, 0, w, h);
 			var opts = {
-				colors: 10, // desired palette size
+				colors: this.colors, // desired palette size
 				method: 2, // histogram method, 2: min-population threshold within subregions; 1: global top-population
 				boxSize: [64, 64], // subregion dims (if method = 2)
 				boxPxls: 2, // min-population threshold (if method = 2)
@@ -13777,23 +13792,24 @@ new vue__WEBPACK_IMPORTED_MODULE_0__["default"]({
 				let color = tinycolor2__WEBPACK_IMPORTED_MODULE_1___default()({ r: pal[i], g: pal[i + 1], b: pal[i + 2], a: pal[i + 3] / 255 });
 				newpalette.push(color.toHex8String());
 			}
-			T.palette = newpalette;
+			this.palette = newpalette;
 
 			var resultImageObject = {
-				w: w,
-				h: h,
+				sort: 0,
+				width: w,
+				height: h,
 				palette: newpalette,
-				data: []
+				pixels: []
 			};
 			for (var i = 0; i < sourceImageData.data.length; i += 4) {
 				let found = false;
 				if (sourceImageData.data[i] === 0 && sourceImageData.data[i + 1] === 0 && sourceImageData.data[i + 2] === 0 && sourceImageData.data[i + 3] === 0) {
-					resultImageObject.data.push(0);
+					resultImageObject.pixels.push(0);
 					continue;
 				}
 				for (var c = 0; c < pal.length; c += 4) {
 					if (sourceImageData.data[i] === pal[c] && sourceImageData.data[i + 1] === pal[c + 1] && sourceImageData.data[i + 2] === pal[c + 2] && sourceImageData.data[i + 3] === pal[c + 3]) {
-						resultImageObject.data.push(Math.floor(c / 4) + 1);
+						resultImageObject.pixels.push(Math.floor(c / 4) + 1);
 						found = true;
 						break;
 					}
@@ -13806,8 +13822,20 @@ new vue__WEBPACK_IMPORTED_MODULE_0__["default"]({
 			}
 			console.log(resultImageObject);
 			//console.log(sourceImageData);
-			console.log(JSON.stringify(resultImageObject));
+			this.result = JSON.stringify(resultImageObject);
+			console.log(this.result);
+		},
+		load: function () {
+			var T = this;
+			var img = new Image();
+			img.src = this.path;
+			img.onload = function () {
+				T.image = this;
+			};
 		}
+	},
+	created: function () {
+		this.load();
 	}
 });
 

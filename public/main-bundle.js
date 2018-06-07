@@ -135,12 +135,32 @@ const router = new vue_router__WEBPACK_IMPORTED_MODULE_2__["default"]({
 	created: function () {
 
 		this.$localStorage.remove('images');
-		this.images.push({ id: 'Betta-PNG-Photos' });
-		this.images.push({ id: 'cat' });
-		this.images.push({ id: 'Donkey-Kong-PNG-Photos' });
-		this.images.push({ id: 'Leopard-PNG-Free-Download' });
-		this.images.push({ id: 'Leopard-Transparent-Background' });
-		this.images.push({ id: 'Pile-of-Skulls-PNG-Clipart' });
+		this.images.push({ id: 'Fish/Betta-PNG-Photos' });
+		this.images.push({ id: 'Cats/cat' });
+		this.images.push({ id: 'Cartoons/Donkey-Kong-PNG-Photos' });
+		this.images.push({ id: 'Animals/Leopard-PNG-Free-Download' });
+		this.images.push({ id: 'Animals/Leopard-Transparent-Background' });
+		this.images.push({ id: 'Gothic/Pile-of-Skulls-PNG-Clipart' });
+		this.images.push({ id: 'Emoji/alien-emoji-png-transparent-icon-2-clipart' });
+		this.images.push({ id: 'Emoji/AmbulanceEmoji' });
+		this.images.push({ id: 'Emoji/BirdEmoji' });
+		this.images.push({ id: 'Emoji/Death' });
+		this.images.push({ id: 'Emoji/EmojiBlitzFlounder' });
+		this.images.push({ id: 'Emoji/FireEmoji_0' });
+		this.images.push({ id: 'Emoji/FiretruckEmoji' });
+		this.images.push({ id: 'Emoji/GemEmoji' });
+		this.images.push({ id: 'Emoji/GunEmoji' });
+		this.images.push({ id: 'Emoji/if_angry_1325170' });
+		this.images.push({ id: 'Emoji/if_love_1325176' });
+		this.images.push({ id: 'Emoji/if_shy_1325169' });
+		this.images.push({ id: 'Emoji/if_wink_1325171' });
+		this.images.push({ id: 'Emoji/LipsEmoji' });
+		this.images.push({ id: 'Emoji/LoveEmoji_0' });
+		this.images.push({ id: 'Emoji/Luck' });
+		this.images.push({ id: 'Emoji/PIEmoji' });
+		this.images.push({ id: 'Emoji/RaceCarEmoji' });
+		this.images.push({ id: 'Emoji/SunEmoji' });
+		this.images.push({ id: 'Emoji/TVEmoji' });
 
 		this.storedData = this.$localStorage.storedData;
 
@@ -775,16 +795,35 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
 
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
 	data: function () {
 		return {
-			images: window.globals.images
+			images: window.globals.images,
+			filter: 'current'
 		};
 	},
-	computed: {},
+	computed: {
+		filteredImages: function () {
+			return this.images.filter(im => {
+				switch (this.filter) {
+					case 'complete':
+						return im.complete;
+					case 'current':
+						return !im.personal && !im.complete;
+					case 'personal':
+						return im.personal;
+				}
+			});
+		}
+	},
 	methods: {
 		select: function (index) {
 			this.$router.push({ name: 'game', params: { id: index } });
@@ -61553,20 +61592,22 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c(
-    "div",
-    { staticClass: "ImagesMenu" },
-    _vm._l(_vm.images, function(image, index) {
-      return _c("ImagesMenuItem", {
-        attrs: { image: image },
-        on: {
-          select: function($event) {
-            _vm.select(index)
+  return _c("div", { staticClass: "ImagesMenu" }, [
+    _c(
+      "div",
+      { staticClass: "ImagesList" },
+      _vm._l(_vm.filteredImages, function(image, index) {
+        return _c("ImagesMenuItem", {
+          attrs: { image: image },
+          on: {
+            select: function($event) {
+              _vm.select(index)
+            }
           }
-        }
+        })
       })
-    })
-  )
+    )
+  ])
 }
 var staticRenderFns = []
 render._withStripped = true

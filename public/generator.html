@@ -29,6 +29,15 @@
 <body style="padding: 0; margin: 4px">
 
 	<div id="app">
+        <div>
+            Path: <input v-model="path"/>
+        </div>
+        <div>
+            Colors: <input v-model="colors"/>
+        </div>
+        <div>
+            Size: <input v-model="size"/>
+        </div>
 		<div class="canvasContainer">
 			<div class="canvasTitle">Source</div>
 			<canvas id="sourceCanvas"></canvas>
@@ -45,6 +54,9 @@
 			<div class="canvasTitle">Result</div>
 			<canvas id="resultCanvas"></canvas>
 		</div>
+        <div>
+            <textarea v-model="result" rows="4" cols="40"></textarea>
+        </div>
 	</div>	
 
 	<script type="text/javascript" src="libs-bundle.js"></script>
