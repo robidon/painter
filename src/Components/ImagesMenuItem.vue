@@ -31,7 +31,7 @@ export default {
 	methods: {
 		update: function () {
 			var canvas = this.$refs["canvas"];
-			if (typeof(canvas)=="undefined" || typeof(this.image)=="undefined") return;
+			if (typeof(canvas)=="undefined" || typeof(this.image)=="undefined" || typeof(this.image.canvases)=="undefined") return;
 			var pixelatedContext = canvas.getContext('2d');
 			
 			pixelatedContext.msImageSmoothingEnabled = false;

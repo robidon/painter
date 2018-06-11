@@ -1,10 +1,29 @@
 <template>
 	<div class="ImagesMenu">
 		<div class="ImagesList">
-			<ImagesMenuItem
-				v-for="(image, index) in filteredImages"
-				v-bind:image="image"
-				v-on:select="select(index)"></ImagesMenuItem>
+			<b-tabs v-model="activeTab" position="is-centered">
+	            <b-tab-item label="All">
+					<ImagesMenuItem
+						v-for="(image, index) in images"
+						v-bind:image="image"
+						v-on:select="select(image)"></ImagesMenuItem>
+	            </b-tab-item>
+
+	            <b-tab-item label="Started">
+					<ImagesMenuItem
+						v-for="(image, index) in startedImages"
+						v-bind:image="image"
+						v-on:select="select(image)"></ImagesMenuItem>
+	            </b-tab-item>
+
+	            <b-tab-item label="Complete">
+					<ImagesMenuItem
+						v-for="(image, index) in completeImages"
+						v-bind:image="image"
+						v-on:select="select(image)"></ImagesMenuItem>
+	            </b-tab-item>
+
+	        </b-tabs>
 		</div>
 	</div>
 </template>
@@ -15,24 +34,37 @@ import ImagesMenuItem from "./ImagesMenuItem.vue";
 export default {
 	data: function () {
 		return {
-			images:window.globals.images,
-			filter:'current'
+			activeTab: 0,
+			images:window.globals.images
 		};		
 	},
 	computed: {
-		filteredImages: function () {
+		currentImages: function () {
 			return this.images.filter((im) => {
-				switch (this.filter) {
-					case 'complete': return im.complete;
-					case 'current': return !im.personal && !im.complete;
-					case 'personal': return im.personal;
-				}
-			})
+				return (im.pixelsToColorCount > im.coloredPixelsCount);
+			});
+		},
+		startedImages: function () {
+			return this.images.filter((im) => {
+				return (im.coloredPixelsCount>0) && (im.pixelsToColorCount > im.coloredPixelsCount);
+			});	
+		},
+		completeImages: function () {
+			return this.images.filter((im) => {
+				return (im.pixelsToColorCount == im.coloredPixelsCount);
+			});	
 		}
 	},
+	created: function () {
+		this.$router.app.$on('update-image', (id)=>{
+			this.$forceUpdate();
+		});
+	},
 	methods: {
-		select: function (index) {
-			this.$router.push({name:'game', params: {id: index}});
+		select: function (image) {
+			if (this.images.indexOf(image)!=-1) {
+				this.$router.push({name:'game', params: {id: this.images.indexOf(image)}});
+			}
 		}
 	},
 	components: {

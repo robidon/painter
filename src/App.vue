@@ -1,7 +1,5 @@
 <template>
 	<div id="app">
-		<!--<ImagesMenu v-if="selectedImageIndex === -1" v-bind:images="images" v-on:select="select"></ImagesMenu>
-		<Game v-if="selectedImageIndex !== -1" v-bind:image="images[selectedImageIndex]"></Game>-->
 		<router-view></router-view>
 	</div>
 </template>
@@ -14,10 +12,12 @@ import VueLocalStorage from 'vue-localstorage';
 import Game from './Components/Game.vue'
 import ImagesMenu from './Components/ImagesMenu.vue'
 import Tinycolor from "tinycolor2";
+import Buefy from 'buefy';
+import 'buefy/lib/buefy.css';
 
 Vue.use(VueRouter);
-Vue.use(VueLocalStorage)
-
+Vue.use(VueLocalStorage);
+Vue.use(Buefy);
 
 const routes = [
   { name:'imagesmenu', path: '/imagesmenu', component: ImagesMenu },
@@ -102,6 +102,9 @@ export default {
 				rawdata:imageData,
 				width:imageData.width,
 				height:imageData.height,
+				coloredPixelsCount:0,
+				pixelsToColorCount:0,
+				started:false,
 				palettes:{
 					colors:[],
 					gray:[],
@@ -189,12 +192,23 @@ export default {
 			var coloredContext = coloredCanvas.getContext('2d');
 			var cimageData = coloredContext.createImageData(image.width,image.height);
 			var cpixels = [];
+			var coloredPixelsCount = 0;
+			var pixelsToColorCount = 0;
 			for(var x=0;x<image.width;x++) {
 				cpixels.push([]);
 				for(var y=0;y<image.height;y++) {
 					cpixels[x].push(image.pixels.colored[x][y]*image.pixels.clean[x][y]);
+					if (image.pixels.clean[x][y]) pixelsToColorCount++;
+					if (image.pixels.colored[x][y]) {
+						if (!image.started) {
+							image.started = true;
+						}
+						coloredPixelsCount++;
+					}
 				}
 			}
+			image.coloredPixelsCount = coloredPixelsCount;
+			image.pixelsToColorCount = pixelsToColorCount;
 			this.fillImageDataWithPalette(cimageData, cpixels, image.palettes.colors);
 			coloredContext.putImageData(cimageData,0,0);
 			image.canvases.colored = coloredCanvas;
