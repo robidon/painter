@@ -685,7 +685,8 @@ let checkZoomInterval = 0;
 
 				var lastColoredPixelX = -1,
 				    lastColoredPixelY = -1,
-				    lastColoredPixelTime = -1000;
+				    lastColoredPixelTime = -1000,
+				    pixelsToFill = 0;
 
 				var fillPixel = function (x, y, flood = false, floodColor = null) {
 					if (x < 0 || y < 0 || x >= T.image.width || y >= T.image.height) return;
@@ -722,6 +723,8 @@ let checkZoomInterval = 0;
 						}, 100);
 					}
 
+					pixelsToFill++;
+
 					T.image.pixels.colored[x][y] = 1;
 					coloredPixelsCount++;
 
@@ -733,7 +736,11 @@ let checkZoomInterval = 0;
 						front.drawRect(x * rectSize, y * rectSize, rectSize, rectSize);
 						front.endFill();
 
-						front.cacheAsBitmap = true;
+						pixelsToFill--;
+
+						if (pixelsToFill <= 0) {
+							front.cacheAsBitmap = true;
+						}
 
 						viewport.removeChild(clip);
 						viewport.removeChild(mask);
@@ -749,23 +756,24 @@ let checkZoomInterval = 0;
 
 					mask.isMask = true;
 					mask.beginFill(T.image.palettes.colors[T.image.pixels.clean[x][y] - 1].toNumber());
-					mask.drawRect(x * rectSize, y * rectSize, rectSize, rectSize);
-					mask.x = mask.y = 0;
+					mask.drawCircle(0, 0, rectSize);
 					mask.endFill();
+					mask.x = (x + 0.5) * rectSize;
+					mask.y = (y + 0.5) * rectSize;
+					mask.scale = new PIXI.Point(0, 0);
 
 					viewport.addChild(mask);
 
 					clip.beginFill(T.image.palettes.colors[T.image.pixels.clean[x][y] - 1].toNumber());
-					clip.drawCircle(0, 0, rectSize);
+					clip.drawRect(0, 0, rectSize, rectSize);
+					clip.x = x * rectSize;
+					clip.y = y * rectSize;
 					clip.endFill();
-					clip.x = (x + 0.5) * rectSize;
-					clip.y = (y + 0.5) * rectSize;
-					clip.scale = new PIXI.Point(0, 0);
 					clip.mask = mask;
 
 					viewport.addChild(clip);
 
-					gsap__WEBPACK_IMPORTED_MODULE_2__["TweenLite"].to(clip.scale, 0.7, { x: 1, y: 1, onComplete: endFill });
+					gsap__WEBPACK_IMPORTED_MODULE_2__["TweenLite"].to(mask.scale, 0.7, { x: 1, y: 1, onComplete: endFill });
 				};
 
 				var tap = function (point) {
@@ -788,7 +796,6 @@ let checkZoomInterval = 0;
 					tapPoint = undefined;
 				});
 
-				//viewport.on('click', tap);
 				app.render();
 
 				this.$emit('render-complete');
