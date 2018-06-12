@@ -1,5 +1,5 @@
 <template>
-	<div class="color-button-container"><div class="color-button" v-on:click="toggle" v-bind:class="{ selected:selected }" :style="{ backgroundColor: cssBColor, color:cssFColor }" >{{ index+1 }}</div></div>
+	<div class="color-button-container"><div class="color-button" v-on:click="toggle" v-bind:class="{ selected:selected }" :style="{ backgroundColor: cssBColor, color:cssFColor }" >{{ !complete ? index+1 : '🗸' }}</div></div>
 </template>
 
 <script>
@@ -16,6 +16,10 @@ export default {
 		selected: {
 			type:Boolean,
 			default: false
+		},
+		complete: {
+			type:Boolean,
+			default: false
 		}
 	},
 	computed: {
@@ -23,7 +27,13 @@ export default {
 			return this.color.toHexString();
 		},
 		cssFColor: function () {
-			return this.color.clone().lighten(40).toHexString();	
+			let c = this.color.clone();
+			if (c.isLight()) {
+				return c.darken(40).toHexString();
+			} else {
+				return c.lighten(40).toHexString();
+			}
+			//return this.color.clone().lighten(40).toHexString();	
 		}
 	},
 	methods: {

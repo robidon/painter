@@ -46,7 +46,6 @@ export default {
 	},
 	created: function () {
 
-		this.$localStorage.remove('images');
 		this.images.push({id:'Fish/Betta-PNG-Photos'});
 		this.images.push({id:'Cats/cat'});
 		this.images.push({id:'Cartoons/Donkey-Kong-PNG-Photos'});
@@ -109,7 +108,9 @@ export default {
 					colors:[],
 					gray:[],
 					light:[],
-					dark:[]
+					dark:[],
+					totals:[],
+					colored:[]
 				},
 				pixels:{
 					clean:[],
@@ -131,12 +132,17 @@ export default {
 				image.palettes.light.push(Tinycolor({r:lg, b:lg, g:lg, a:color.toRgb().a}));
 				var dg = lg - 150;
 				image.palettes.dark.push(Tinycolor({r:dg, b:dg, g:dg, a:color.toRgb().a}));
+				image.palettes.totals.push(0);
+				image.palettes.colored.push(0);
 			}
+
 			for (var x=0; x<image.width; x++) {
 				image.pixels.clean.push([]);
 				image.pixels.colored.push([]);
 				for (var y=0; y<image.height; y++) {
 					image.pixels.clean[x].push(imageData.pixels[y*image.width+x]);
+					if (image.pixels.clean[x][y]) 
+						image.palettes.totals[image.pixels.clean[x][y]-1]++;
 					if (imageData.colored && typeof(imageData.colored[y*image.width+x])!=="undefined") {
 						image.pixels.colored[x].push(imageData.pixels[y*image.width+x]);
 					} else {
@@ -154,7 +160,6 @@ export default {
 				}
 			}
 			
-
 			var lightCanvas = document.createElement('canvas');
 			lightCanvas.width = image.width;
 			lightCanvas.height = image.height;
@@ -194,6 +199,7 @@ export default {
 			var cpixels = [];
 			var coloredPixelsCount = 0;
 			var pixelsToColorCount = 0;
+			image.palettes.colored = Array(image.palettes.colors.length).fill(0);
 			for(var x=0;x<image.width;x++) {
 				cpixels.push([]);
 				for(var y=0;y<image.height;y++) {
@@ -204,6 +210,7 @@ export default {
 							image.started = true;
 						}
 						coloredPixelsCount++;
+						image.palettes.colored[image.pixels.clean[x][y]-1]++;
 					}
 				}
 			}

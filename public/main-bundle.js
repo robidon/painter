@@ -139,7 +139,6 @@ const router = new vue_router__WEBPACK_IMPORTED_MODULE_2__["default"]({
 	},
 	created: function () {
 
-		this.$localStorage.remove('images');
 		this.images.push({ id: 'Fish/Betta-PNG-Photos' });
 		this.images.push({ id: 'Cats/cat' });
 		this.images.push({ id: 'Cartoons/Donkey-Kong-PNG-Photos' });
@@ -199,7 +198,9 @@ const router = new vue_router__WEBPACK_IMPORTED_MODULE_2__["default"]({
 					colors: [],
 					gray: [],
 					light: [],
-					dark: []
+					dark: [],
+					totals: [],
+					colored: []
 				},
 				pixels: {
 					clean: [],
@@ -221,12 +222,16 @@ const router = new vue_router__WEBPACK_IMPORTED_MODULE_2__["default"]({
 				image.palettes.light.push(tinycolor2__WEBPACK_IMPORTED_MODULE_6___default()({ r: lg, b: lg, g: lg, a: color.toRgb().a }));
 				var dg = lg - 150;
 				image.palettes.dark.push(tinycolor2__WEBPACK_IMPORTED_MODULE_6___default()({ r: dg, b: dg, g: dg, a: color.toRgb().a }));
+				image.palettes.totals.push(0);
+				image.palettes.colored.push(0);
 			}
+
 			for (var x = 0; x < image.width; x++) {
 				image.pixels.clean.push([]);
 				image.pixels.colored.push([]);
 				for (var y = 0; y < image.height; y++) {
 					image.pixels.clean[x].push(imageData.pixels[y * image.width + x]);
+					if (image.pixels.clean[x][y]) image.palettes.totals[image.pixels.clean[x][y] - 1]++;
 					if (imageData.colored && typeof imageData.colored[y * image.width + x] !== "undefined") {
 						image.pixels.colored[x].push(imageData.pixels[y * image.width + x]);
 					} else {
@@ -283,6 +288,7 @@ const router = new vue_router__WEBPACK_IMPORTED_MODULE_2__["default"]({
 			var cpixels = [];
 			var coloredPixelsCount = 0;
 			var pixelsToColorCount = 0;
+			image.palettes.colored = Array(image.palettes.colors.length).fill(0);
 			for (var x = 0; x < image.width; x++) {
 				cpixels.push([]);
 				for (var y = 0; y < image.height; y++) {
@@ -293,6 +299,7 @@ const router = new vue_router__WEBPACK_IMPORTED_MODULE_2__["default"]({
 							image.started = true;
 						}
 						coloredPixelsCount++;
+						image.palettes.colored[image.pixels.clean[x][y] - 1]++;
 					}
 				}
 			}
@@ -354,6 +361,10 @@ __webpack_require__.r(__webpack_exports__);
 		selected: {
 			type: Boolean,
 			default: false
+		},
+		complete: {
+			type: Boolean,
+			default: false
 		}
 	},
 	computed: {
@@ -361,7 +372,13 @@ __webpack_require__.r(__webpack_exports__);
 			return this.color.toHexString();
 		},
 		cssFColor: function () {
-			return this.color.clone().lighten(40).toHexString();
+			let c = this.color.clone();
+			if (c.isLight()) {
+				return c.darken(40).toHexString();
+			} else {
+				return c.lighten(40).toHexString();
+			}
+			//return this.color.clone().lighten(40).toHexString();	
 		}
 	},
 	methods: {
@@ -382,7 +399,9 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _ColorButton_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ColorButton.vue */ "./src/Components/ColorButton.vue");
+/* harmony import */ var underscore__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! underscore */ "./node_modules/underscore/underscore.js");
+/* harmony import */ var underscore__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(underscore__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _ColorButton_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ColorButton.vue */ "./src/Components/ColorButton.vue");
 //
 //
 //
@@ -397,11 +416,16 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+
 
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
 	props: {
+		image: {
+			type: Object
+		},
 		palette: {
 			type: Array,
 			default: function () {
@@ -413,13 +437,27 @@ __webpack_require__.r(__webpack_exports__);
 			default: 0
 		}
 	},
+	computed: {
+		orderedPalette: function () {
+			var pal = [];
+			for (var c = 0; c < this.palette.length; c++) {
+				pal.push({
+					color: this.palette[c],
+					index: c,
+					freq: this.image.palettes.totals[c],
+					complete: this.image.palettes.colored[c] >= this.image.palettes.totals[c]
+				});
+			}
+			return underscore__WEBPACK_IMPORTED_MODULE_0___default.a.sortBy(pal, 'freq').reverse();
+		}
+	},
 	methods: {
 		toggleButton: function (index) {
 			this.$emit("setColor", index);
 		}
 	},
 	components: {
-		ColorButton: _ColorButton_vue__WEBPACK_IMPORTED_MODULE_0__["default"]
+		ColorButton: _ColorButton_vue__WEBPACK_IMPORTED_MODULE_1__["default"]
 	}
 });
 
@@ -440,6 +478,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var tinycolor2__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(tinycolor2__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var _GameCanvas_vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./GameCanvas.vue */ "./src/Components/GameCanvas.vue");
 /* harmony import */ var _ColorPicker_vue__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./ColorPicker.vue */ "./src/Components/ColorPicker.vue");
+//
 //
 //
 //
@@ -846,6 +885,15 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -867,7 +915,7 @@ __webpack_require__.r(__webpack_exports__);
 				return im.coloredPixelsCount > 0 && im.pixelsToColorCount > im.coloredPixelsCount;
 			});
 		},
-		completeImages: function () {
+		completedImages: function () {
 			return this.images.filter(im => {
 				return im.pixelsToColorCount == im.coloredPixelsCount;
 			});
@@ -61535,7 +61583,7 @@ var render = function() {
         style: { backgroundColor: _vm.cssBColor, color: _vm.cssFColor },
         on: { click: _vm.toggle }
       },
-      [_vm._v(_vm._s(_vm.index + 1))]
+      [_vm._v(_vm._s(!_vm.complete ? _vm.index + 1 : "🗸"))]
     )
   ])
 }
@@ -61565,17 +61613,18 @@ var render = function() {
     _c(
       "div",
       { staticClass: "colorpicker" },
-      _vm._l(_vm.palette, function(color, index) {
+      _vm._l(_vm.orderedPalette, function(color, index) {
         return _c("ColorButton", {
           key: index,
           attrs: {
-            index: index,
-            color: color,
-            selected: _vm.selectedColor == index
+            index: color.index,
+            color: color.color,
+            complete: color.complete,
+            selected: _vm.selectedColor == color.index
           },
           on: {
             toggle: function($event) {
-              _vm.toggleButton(index)
+              _vm.toggleButton(color.index)
             }
           }
         })
@@ -61644,7 +61693,11 @@ var render = function() {
           }),
           _vm._v(" "),
           _c("ColorPicker", {
-            attrs: { palette: _vm.palette, selectedColor: _vm.selectedColor },
+            attrs: {
+              image: _vm.image,
+              palette: _vm.palette,
+              selectedColor: _vm.selectedColor
+            },
             on: { setColor: _vm.changeColor }
           })
         ],
@@ -61720,47 +61773,92 @@ var render = function() {
           [
             _c(
               "b-tab-item",
-              { attrs: { label: "All" } },
-              _vm._l(_vm.images, function(image, index) {
-                return _c("ImagesMenuItem", {
-                  attrs: { image: image },
-                  on: {
-                    select: function($event) {
-                      _vm.select(image)
+              [
+                _c("template", { slot: "header" }, [
+                  _c(
+                    "span",
+                    [
+                      _vm._v(" All "),
+                      _c("b-tag", { attrs: { rounded: "" } }, [
+                        _vm._v(" " + _vm._s(_vm.images.length) + " ")
+                      ])
+                    ],
+                    1
+                  )
+                ]),
+                _vm._v(" "),
+                _vm._l(_vm.images, function(image, index) {
+                  return _c("ImagesMenuItem", {
+                    attrs: { image: image },
+                    on: {
+                      select: function($event) {
+                        _vm.select(image)
+                      }
                     }
-                  }
+                  })
                 })
-              })
+              ],
+              2
             ),
             _vm._v(" "),
             _c(
               "b-tab-item",
-              { attrs: { label: "Started" } },
-              _vm._l(_vm.startedImages, function(image, index) {
-                return _c("ImagesMenuItem", {
-                  attrs: { image: image },
-                  on: {
-                    select: function($event) {
-                      _vm.select(image)
+              [
+                _c("template", { slot: "header" }, [
+                  _c(
+                    "span",
+                    [
+                      _vm._v(" Started "),
+                      _c("b-tag", { attrs: { rounded: "" } }, [
+                        _vm._v(" " + _vm._s(_vm.startedImages.length) + " ")
+                      ])
+                    ],
+                    1
+                  )
+                ]),
+                _vm._v(" "),
+                _vm._l(_vm.startedImages, function(image, index) {
+                  return _c("ImagesMenuItem", {
+                    attrs: { image: image },
+                    on: {
+                      select: function($event) {
+                        _vm.select(image)
+                      }
                     }
-                  }
+                  })
                 })
-              })
+              ],
+              2
             ),
             _vm._v(" "),
             _c(
               "b-tab-item",
-              { attrs: { label: "Complete" } },
-              _vm._l(_vm.completeImages, function(image, index) {
-                return _c("ImagesMenuItem", {
-                  attrs: { image: image },
-                  on: {
-                    select: function($event) {
-                      _vm.select(image)
+              [
+                _c("template", { slot: "header" }, [
+                  _c(
+                    "span",
+                    [
+                      _vm._v(" Complete "),
+                      _c("b-tag", { attrs: { rounded: "" } }, [
+                        _vm._v(" " + _vm._s(_vm.completedImages.length) + " ")
+                      ])
+                    ],
+                    1
+                  )
+                ]),
+                _vm._v(" "),
+                _vm._l(_vm.completedImages, function(image, index) {
+                  return _c("ImagesMenuItem", {
+                    attrs: { image: image },
+                    on: {
+                      select: function($event) {
+                        _vm.select(image)
+                      }
                     }
-                  }
+                  })
                 })
-              })
+              ],
+              2
             )
           ],
           1

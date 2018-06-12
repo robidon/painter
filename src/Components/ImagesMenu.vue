@@ -2,23 +2,32 @@
 	<div class="ImagesMenu">
 		<div class="ImagesList">
 			<b-tabs v-model="activeTab" position="is-centered">
-	            <b-tab-item label="All">
+	            <b-tab-item>
+	            	<template slot="header">
+		                <span> All <b-tag rounded> {{images.length}} </b-tag> </span>
+		            </template>
 					<ImagesMenuItem
 						v-for="(image, index) in images"
 						v-bind:image="image"
 						v-on:select="select(image)"></ImagesMenuItem>
 	            </b-tab-item>
 
-	            <b-tab-item label="Started">
+	            <b-tab-item>
+	            	<template slot="header">
+		                <span> Started <b-tag rounded> {{startedImages.length}} </b-tag> </span>
+		            </template>
 					<ImagesMenuItem
 						v-for="(image, index) in startedImages"
 						v-bind:image="image"
 						v-on:select="select(image)"></ImagesMenuItem>
 	            </b-tab-item>
 
-	            <b-tab-item label="Complete">
+	            <b-tab-item>
+	            	<template slot="header">
+		                <span> Complete <b-tag rounded> {{completedImages.length}} </b-tag> </span>
+		            </template>
 					<ImagesMenuItem
-						v-for="(image, index) in completeImages"
+						v-for="(image, index) in completedImages"
 						v-bind:image="image"
 						v-on:select="select(image)"></ImagesMenuItem>
 	            </b-tab-item>
@@ -49,7 +58,7 @@ export default {
 				return (im.coloredPixelsCount>0) && (im.pixelsToColorCount > im.coloredPixelsCount);
 			});	
 		},
-		completeImages: function () {
+		completedImages: function () {
 			return this.images.filter((im) => {
 				return (im.pixelsToColorCount == im.coloredPixelsCount);
 			});	

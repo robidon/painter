@@ -11,6 +11,7 @@
 				v-on:level-complete="levelComplete"
 				v-on:mark-colored="markColored"></GameCanvas>
 			<ColorPicker
+				v-bind:image="image"
 				v-bind:palette="palette"
 				v-bind:selectedColor="selectedColor"
 				v-on:setColor="changeColor"></ColorPicker>
@@ -71,7 +72,7 @@ export default {
   			this.debouncedSaveImage();
   		},
   		levelComplete:function() {
-
+  			
   		},
   		changeColor:function (newColorIndex) {
   			this.selectedColor = newColorIndex;
