@@ -777,17 +777,18 @@ let checkZoomInterval = 0;
 				};
 
 				var tapPoint;
-				viewport.on('touchstart', function (e) {
+				viewport.on('pointerdown', function (e) {
 					tapPoint = { x: e.data.global.x, y: e.data.global.y };
 				});
-				viewport.on('touchend', function (e) {
+				viewport.on('pointerup', function (e) {
 					let newPoint = e.data.global;
-					if (Math.abs(tapPoint.x - newPoint.x) < 10 && Math.abs(tapPoint.y - newPoint.y) < 10) {
+					if (typeof tapPoint != "undefined" && Math.abs(tapPoint.x - newPoint.x) < 10 && Math.abs(tapPoint.y - newPoint.y) < 10) {
 						tap(e.data.getLocalPosition(viewport));
 					}
+					tapPoint = undefined;
 				});
 
-				viewport.on('click', tap);
+				//viewport.on('click', tap);
 				app.render();
 
 				this.$emit('render-complete');
