@@ -13788,9 +13788,11 @@ new vue__WEBPACK_IMPORTED_MODULE_0__["default"]({
 
 			// render palette
 			var newpalette = [];
+			var newpaletteFreq = [];
 			for (var i = 0; i < pal.length; i += 4) {
 				let color = tinycolor2__WEBPACK_IMPORTED_MODULE_1___default()({ r: pal[i], g: pal[i + 1], b: pal[i + 2], a: pal[i + 3] / 255 });
 				newpalette.push(color.toHex8String());
+				newpaletteFreq.push(0);
 			}
 			this.palette = newpalette;
 
@@ -13809,6 +13811,7 @@ new vue__WEBPACK_IMPORTED_MODULE_0__["default"]({
 				}
 				for (var c = 0; c < pal.length; c += 4) {
 					if (sourceImageData.data[i] === pal[c] && sourceImageData.data[i + 1] === pal[c + 1] && sourceImageData.data[i + 2] === pal[c + 2] && sourceImageData.data[i + 3] === pal[c + 3]) {
+						newpaletteFreq[Math.floor(c / 4) + 1]++;
 						resultImageObject.pixels.push(Math.floor(c / 4) + 1);
 						found = true;
 						break;

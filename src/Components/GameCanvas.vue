@@ -185,9 +185,10 @@ export default {
 					pixelsToFill++;
 
 					T.image.pixels.colored[x][y] = 1;
-					coloredPixelsCount ++;
 
 					var endFill = function () {
+
+						coloredPixelsCount ++;
 
 						front.cacheAsBitmap = false;
 				

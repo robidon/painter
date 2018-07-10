@@ -33,7 +33,6 @@ export default {
 			} else {
 				return c.lighten(40).toHexString();
 			}
-			//return this.color.clone().lighten(40).toHexString();	
 		}
 	},
 	methods: {

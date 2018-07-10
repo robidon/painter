@@ -72,7 +72,13 @@ export default {
   			this.debouncedSaveImage();
   		},
   		levelComplete:function() {
-  			
+  			this.$dialog.alert({
+                title: 'Level complete',
+                message: 'Congratulations!!! You`ve complete this image',
+                type: 'is-success',
+                hasIcon: true,
+                icon: 'check'
+            })
   		},
   		changeColor:function (newColorIndex) {
   			this.selectedColor = newColorIndex;

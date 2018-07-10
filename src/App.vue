@@ -15,6 +15,8 @@ import Tinycolor from "tinycolor2";
 import Buefy from 'buefy';
 import 'buefy/lib/buefy.css';
 
+import "fetch-polyfill";
+
 Vue.use(VueRouter);
 Vue.use(VueLocalStorage);
 Vue.use(Buefy);
