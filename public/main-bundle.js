@@ -906,6 +906,9 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
 
 
 
@@ -62169,6 +62172,7 @@ var render = function() {
                 _vm._v(" "),
                 _vm._l(_vm.images, function(image, index) {
                   return _c("ImagesMenuItem", {
+                    key: index,
                     attrs: { image: image },
                     on: {
                       select: function($event) {
@@ -62199,6 +62203,7 @@ var render = function() {
                 _vm._v(" "),
                 _vm._l(_vm.startedImages, function(image, index) {
                   return _c("ImagesMenuItem", {
+                    key: index,
                     attrs: { image: image },
                     on: {
                       select: function($event) {
@@ -62229,6 +62234,7 @@ var render = function() {
                 _vm._v(" "),
                 _vm._l(_vm.completedImages, function(image, index) {
                   return _c("ImagesMenuItem", {
+                    key: index,
                     attrs: { image: image },
                     on: {
                       select: function($event) {

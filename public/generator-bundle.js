@@ -71,6 +71,251 @@
 /************************************************************************/
 /******/ ({
 
+/***/ "./node_modules/babel-loader/lib/index.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/GeneratorItem.vue?vue&type=script&lang=js":
+/*!****************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib!./node_modules/vue-loader/lib??vue-loader-options!./src/Components/GeneratorItem.vue?vue&type=script&lang=js ***!
+  \****************************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var tinycolor2__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tinycolor2 */ "./node_modules/tinycolor2/tinycolor.js");
+/* harmony import */ var tinycolor2__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(tinycolor2__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var rgbquant__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! rgbquant */ "./node_modules/rgbquant/src/rgbquant.js");
+/* harmony import */ var rgbquant__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(rgbquant__WEBPACK_IMPORTED_MODULE_1__);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+	props: {
+		path: {
+			type: String,
+			default: function () {
+				return "i/Emoji/alien-emoji-png-transparent-icon-2-clipart.png";
+			}
+		},
+		size: {
+			type: Number,
+			default: function () {
+				return 6;
+			}
+		},
+		colors: {
+			type: Number,
+			default: function () {
+				return 10;
+			}
+		}
+	},
+	data: function () {
+		return {
+			image: undefined,
+			palette: [],
+			result: ""
+		};
+	},
+	watch: {
+		path: function () {
+			this.draw();
+		},
+		image: function () {
+			this.draw();
+		},
+		size: function () {
+			this.draw();
+		},
+		colors: function () {
+			this.draw();
+		},
+		path: function () {
+			this.load();
+		}
+	},
+	methods: {
+		draw: function () {
+			var img = this.image;
+			if (!img) return;
+			var sourceCanvas = this.$refs['sourceCanvas'];
+			var pixelatedCanvas = this.$refs['pixelatedCanvas'];
+			var resultCanvas = this.$refs['resultCanvas'];
+
+			// draw original large scale image
+			var sourceContext = sourceCanvas.getContext('2d');
+			sourceCanvas.width = pixelatedCanvas.width = 150;
+			sourceCanvas.height = pixelatedCanvas.height = img.height * sourceCanvas.width / img.width;
+			sourceContext.drawImage(img, 0, 0, sourceCanvas.width, sourceCanvas.height);
+
+			//draw result canvas
+			var resultContext = resultCanvas.getContext('2d');
+			var size = this.size,
+			    w = Math.floor(pixelatedCanvas.width / size),
+			    h = Math.floor(pixelatedCanvas.height / size);
+			resultCanvas.width = w;
+			resultCanvas.height = h;
+			resultContext.drawImage(img, 0, 0, w, h);
+			var sourceImageData = resultContext.getImageData(0, 0, w, h);
+			var opts = {
+				colors: this.colors, // desired palette size
+				method: 2, // histogram method, 2: min-population threshold within subregions; 1: global top-population
+				boxSize: [64, 64], // subregion dims (if method = 2)
+				boxPxls: 2, // min-population threshold (if method = 2)
+				initColors: 4096, // # of top-occurring colors  to start with (if method = 1)
+				minHueCols: 0, // # of colors per hue group to evaluate regardless of counts, to retain low-count hues
+				dithKern: null, // dithering kernel name, see available kernels in docs below
+				dithDelta: 0, // dithering threshhold (0-1) e.g: 0.05 will not dither colors with <= 5% difference
+				dithSerp: false, // enable serpentine pattern dithering
+				palette: [], // a predefined palette to start with in r,g,b tuple format: [[r,g,b],[r,g,b]...]
+				reIndex: false, // affects predefined palettes only. if true, allows compacting of sparsed palette once target palette size is reached. also enables palette sorting.
+				useCache: true, // enables caching for perf usually, but can reduce perf in some cases, like pre-def palettes
+				cacheFreq: 10, // min color occurance count needed to qualify for caching
+				colorDist: "euclidean" // method used to determine color distance, can also be "manhattan"
+			};
+			var q = new rgbquant__WEBPACK_IMPORTED_MODULE_1___default.a(opts);
+
+			// analyze histograms
+			q.sample(sourceImageData);
+
+			// build palette
+			var pal = q.palette();
+
+			// reduce images
+			var out = q.reduce(sourceImageData);
+			for (var i = 0; i < sourceImageData.data.length; i += 4) {
+				sourceImageData.data[i + 0] = out[i + 0];
+				sourceImageData.data[i + 1] = out[i + 1];
+				sourceImageData.data[i + 2] = out[i + 2];
+				sourceImageData.data[i + 3] = out[i + 3];
+			}
+			resultContext.putImageData(sourceImageData, 0, 0);
+
+			// draw large scale pixelated image
+			var pixelatedContext = pixelatedCanvas.getContext('2d');
+			pixelatedContext.msImageSmoothingEnabled = false;
+			pixelatedContext.mozImageSmoothingEnabled = false;
+			pixelatedContext.webkitImageSmoothingEnabled = false;
+			pixelatedContext.imageSmoothingEnabled = false;
+			pixelatedContext.drawImage(resultCanvas, 0, 0, w, h, 0, 0, pixelatedCanvas.width, pixelatedCanvas.height);
+
+			// render palette
+			var newpalette = [];
+			var newpaletteFreq = [];
+			for (var i = 0; i < pal.length; i += 4) {
+				let color = tinycolor2__WEBPACK_IMPORTED_MODULE_0___default()({ r: pal[i], g: pal[i + 1], b: pal[i + 2], a: pal[i + 3] / 255 });
+				newpalette.push(color.toHex8String());
+				newpaletteFreq.push(0);
+			}
+			this.palette = newpalette;
+
+			var resultImageObject = {
+				sort: 0,
+				width: w,
+				height: h,
+				palette: newpalette,
+				pixels: []
+			};
+			for (var i = 0; i < sourceImageData.data.length; i += 4) {
+				let found = false;
+				if (sourceImageData.data[i] === 0 && sourceImageData.data[i + 1] === 0 && sourceImageData.data[i + 2] === 0 && sourceImageData.data[i + 3] === 0) {
+					resultImageObject.pixels.push(0);
+					continue;
+				}
+				for (var c = 0; c < pal.length; c += 4) {
+					if (sourceImageData.data[i] === pal[c] && sourceImageData.data[i + 1] === pal[c + 1] && sourceImageData.data[i + 2] === pal[c + 2] && sourceImageData.data[i + 3] === pal[c + 3]) {
+						newpaletteFreq[Math.floor(c / 4) + 1]++;
+						resultImageObject.pixels.push(Math.floor(c / 4) + 1);
+						found = true;
+						break;
+					}
+				}
+				if (!found) {
+					console.log('what?');
+					console.log([sourceImageData.data[i], sourceImageData.data[i + 1], sourceImageData.data[i + 2], sourceImageData.data[i + 3]]);
+					break;
+				}
+			}
+			console.log(resultImageObject);
+			//console.log(sourceImageData);
+			this.result = JSON.stringify(resultImageObject);
+			console.log(this.result);
+		},
+		load: function () {
+			var T = this;
+			var img = new Image();
+			img.src = this.path;
+			img.onload = function () {
+				T.image = this;
+			};
+		}
+	},
+	created: function () {
+		this.load();
+	}
+});
+
+/***/ }),
+
+/***/ "./node_modules/babel-loader/lib/index.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Generator.vue?vue&type=script&lang=js":
+/*!*************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib!./node_modules/vue-loader/lib??vue-loader-options!./src/Generator.vue?vue&type=script&lang=js ***!
+  \*************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _Components_GeneratorItem_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Components/GeneratorItem.vue */ "./src/Components/GeneratorItem.vue");
+//
+//
+//
+//
+//
+//
+//
+
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+    components: {
+        GeneratorItem: _Components_GeneratorItem_vue__WEBPACK_IMPORTED_MODULE_0__["default"]
+    }
+});
+
+/***/ }),
+
 /***/ "./node_modules/process/browser.js":
 /*!*****************************************!*\
   !*** ./node_modules/process/browser.js ***!
@@ -2685,6 +2930,300 @@ else if (true) {
 else {}
 
 })(Math);
+
+
+/***/ }),
+
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/GeneratorItem.vue?vue&type=template&id=f30964b4":
+/*!******************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./src/Components/GeneratorItem.vue?vue&type=template&id=f30964b4 ***!
+  \******************************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", [
+    _c("div", [
+      _vm._v("\n        Path: "),
+      _c("input", {
+        directives: [
+          {
+            name: "model",
+            rawName: "v-model",
+            value: _vm.path,
+            expression: "path"
+          }
+        ],
+        domProps: { value: _vm.path },
+        on: {
+          input: function($event) {
+            if ($event.target.composing) {
+              return
+            }
+            _vm.path = $event.target.value
+          }
+        }
+      })
+    ]),
+    _vm._v(" "),
+    _c("div", [
+      _vm._v("\n        Colors: "),
+      _c("input", {
+        directives: [
+          {
+            name: "model",
+            rawName: "v-model",
+            value: _vm.colors,
+            expression: "colors"
+          }
+        ],
+        domProps: { value: _vm.colors },
+        on: {
+          input: function($event) {
+            if ($event.target.composing) {
+              return
+            }
+            _vm.colors = $event.target.value
+          }
+        }
+      })
+    ]),
+    _vm._v(" "),
+    _c("div", [
+      _vm._v("\n        Size: "),
+      _c("input", {
+        directives: [
+          {
+            name: "model",
+            rawName: "v-model",
+            value: _vm.size,
+            expression: "size"
+          }
+        ],
+        domProps: { value: _vm.size },
+        on: {
+          input: function($event) {
+            if ($event.target.composing) {
+              return
+            }
+            _vm.size = $event.target.value
+          }
+        }
+      })
+    ]),
+    _vm._v(" "),
+    _c("div", { staticClass: "canvasContainer" }, [
+      _c("div", { staticClass: "canvasTitle" }, [_vm._v("Source")]),
+      _vm._v(" "),
+      _c("canvas", { ref: "sourceCanvas" })
+    ]),
+    _vm._v(" "),
+    _c("div", { staticClass: "canvasContainer" }, [
+      _c("div", { staticClass: "canvasTitle" }, [_vm._v("Pixelated")]),
+      _vm._v(" "),
+      _c("canvas", { ref: "pixelatedCanvas" })
+    ]),
+    _vm._v(" "),
+    _c(
+      "div",
+      [
+        _c("div", { staticClass: "canvasTitle" }, [_vm._v("Palette")]),
+        _vm._v(" "),
+        _vm._l(_vm.palette, function(color, index) {
+          return _c("div", {
+            key: index,
+            staticClass: "paletteColor",
+            style: { backgroundColor: color },
+            attrs: { title: color }
+          })
+        })
+      ],
+      2
+    ),
+    _vm._v(" "),
+    _c("div", { staticClass: "canvasContainer" }, [
+      _c("div", { staticClass: "canvasTitle" }, [_vm._v("Result")]),
+      _vm._v(" "),
+      _c("canvas", { ref: "resultCanvas" })
+    ]),
+    _vm._v(" "),
+    _c("div", [
+      _c("textarea", {
+        directives: [
+          {
+            name: "model",
+            rawName: "v-model",
+            value: _vm.result,
+            expression: "result"
+          }
+        ],
+        attrs: { rows: "4", cols: "40" },
+        domProps: { value: _vm.result },
+        on: {
+          input: function($event) {
+            if ($event.target.composing) {
+              return
+            }
+            _vm.result = $event.target.value
+          }
+        }
+      })
+    ])
+  ])
+}
+var staticRenderFns = []
+render._withStripped = true
+/* hot reload */
+if (false) { var api; }
+
+/***/ }),
+
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Generator.vue?vue&type=template&id=2112c4ac":
+/*!***************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./src/Generator.vue?vue&type=template&id=2112c4ac ***!
+  \***************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "div",
+    [
+      _c("GeneratorItem", {
+        attrs: {
+          path: "i/Emoji/alien-emoji-png-transparent-icon-2-clipart.png"
+        }
+      }),
+      _vm._v(" "),
+      _c("GeneratorItem", { attrs: { path: "i/Emoji/AmbulanceEmoji.png" } })
+    ],
+    1
+  )
+}
+var staticRenderFns = []
+render._withStripped = true
+/* hot reload */
+if (false) { var api; }
+
+/***/ }),
+
+/***/ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js":
+/*!********************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/runtime/componentNormalizer.js ***!
+  \********************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return normalizeComponent; });
+/* globals __VUE_SSR_CONTEXT__ */
+
+// IMPORTANT: Do NOT use ES2015 features in this file (except for modules).
+// This module is a runtime utility for cleaner component module output and will
+// be included in the final webpack user bundle.
+
+function normalizeComponent (
+  scriptExports,
+  render,
+  staticRenderFns,
+  functionalTemplate,
+  injectStyles,
+  scopeId,
+  moduleIdentifier, /* server only */
+  shadowMode /* vue-cli only */
+) {
+  // Vue.extend constructor export interop
+  var options = typeof scriptExports === 'function'
+    ? scriptExports.options
+    : scriptExports
+
+  // render functions
+  if (render) {
+    options.render = render
+    options.staticRenderFns = staticRenderFns
+    options._compiled = true
+  }
+
+  // functional template
+  if (functionalTemplate) {
+    options.functional = true
+  }
+
+  // scopedId
+  if (scopeId) {
+    options._scopeId = 'data-v-' + scopeId
+  }
+
+  var hook
+  if (moduleIdentifier) { // server build
+    hook = function (context) {
+      // 2.3 injection
+      context =
+        context || // cached call
+        (this.$vnode && this.$vnode.ssrContext) || // stateful
+        (this.parent && this.parent.$vnode && this.parent.$vnode.ssrContext) // functional
+      // 2.2 with runInNewContext: true
+      if (!context && typeof __VUE_SSR_CONTEXT__ !== 'undefined') {
+        context = __VUE_SSR_CONTEXT__
+      }
+      // inject component styles
+      if (injectStyles) {
+        injectStyles.call(this, context)
+      }
+      // register component module identifier for async chunk inferrence
+      if (context && context._registeredComponents) {
+        context._registeredComponents.add(moduleIdentifier)
+      }
+    }
+    // used by ssr in case component is cached and beforeCreate
+    // never gets called
+    options._ssrRegister = hook
+  } else if (injectStyles) {
+    hook = shadowMode
+      ? function () { injectStyles.call(this, this.$root.$options.shadowRoot) }
+      : injectStyles
+  }
+
+  if (hook) {
+    if (options.functional) {
+      // for template-only hot-reload because in that case the render fn doesn't
+      // go through the normalizer
+      options._injectStyles = hook
+      // register for functioal component in vue file
+      var originalRender = options.render
+      options.render = function renderWithStyleInjection (h, context) {
+        hook.call(context)
+        return originalRender(h, context)
+      }
+    } else {
+      // inject component registration as beforeCreate hook
+      var existing = options.beforeCreate
+      options.beforeCreate = existing
+        ? [].concat(existing, hook)
+        : [hook]
+    }
+  }
+
+  return {
+    exports: scriptExports,
+    options: options
+  }
+}
 
 
 /***/ }),
@@ -13679,6 +14218,75 @@ module.exports = g;
 
 /***/ }),
 
+/***/ "./src/Components/GeneratorItem.vue":
+/*!******************************************!*\
+  !*** ./src/Components/GeneratorItem.vue ***!
+  \******************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _GeneratorItem_vue_vue_type_template_id_f30964b4__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./GeneratorItem.vue?vue&type=template&id=f30964b4 */ "./src/Components/GeneratorItem.vue?vue&type=template&id=f30964b4");
+/* harmony import */ var _GeneratorItem_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./GeneratorItem.vue?vue&type=script&lang=js */ "./src/Components/GeneratorItem.vue?vue&type=script&lang=js");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+  _GeneratorItem_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"],
+  _GeneratorItem_vue_vue_type_template_id_f30964b4__WEBPACK_IMPORTED_MODULE_0__["render"],
+  _GeneratorItem_vue_vue_type_template_id_f30964b4__WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  null,
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "src/Components/GeneratorItem.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./src/Components/GeneratorItem.vue?vue&type=script&lang=js":
+/*!******************************************************************!*\
+  !*** ./src/Components/GeneratorItem.vue?vue&type=script&lang=js ***!
+  \******************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_node_modules_vue_loader_lib_index_js_vue_loader_options_GeneratorItem_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../node_modules/babel-loader/lib!../../node_modules/vue-loader/lib??vue-loader-options!./GeneratorItem.vue?vue&type=script&lang=js */ "./node_modules/babel-loader/lib/index.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/GeneratorItem.vue?vue&type=script&lang=js");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_node_modules_vue_loader_lib_index_js_vue_loader_options_GeneratorItem_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./src/Components/GeneratorItem.vue?vue&type=template&id=f30964b4":
+/*!************************************************************************!*\
+  !*** ./src/Components/GeneratorItem.vue?vue&type=template&id=f30964b4 ***!
+  \************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_GeneratorItem_vue_vue_type_template_id_f30964b4__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../node_modules/vue-loader/lib??vue-loader-options!./GeneratorItem.vue?vue&type=template&id=f30964b4 */ "./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Components/GeneratorItem.vue?vue&type=template&id=f30964b4");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_GeneratorItem_vue_vue_type_template_id_f30964b4__WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_GeneratorItem_vue_vue_type_template_id_f30964b4__WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
+
+/***/ }),
+
 /***/ "./src/Generator.js":
 /*!**************************!*\
   !*** ./src/Generator.js ***!
@@ -13689,158 +14297,84 @@ module.exports = g;
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js");
-/* harmony import */ var tinycolor2__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! tinycolor2 */ "./node_modules/tinycolor2/tinycolor.js");
-/* harmony import */ var tinycolor2__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(tinycolor2__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var rgbquant__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! rgbquant */ "./node_modules/rgbquant/src/rgbquant.js");
-/* harmony import */ var rgbquant__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(rgbquant__WEBPACK_IMPORTED_MODULE_2__);
-
+/* harmony import */ var _Generator_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Generator.vue */ "./src/Generator.vue");
 
 
 
 new vue__WEBPACK_IMPORTED_MODULE_0__["default"]({
-	el: '#app',
-	data: {
-		path: "i/Emoji/alien-emoji-png-transparent-icon-2-clipart.png",
-		size: 6,
-		colors: 10,
-		image: undefined,
-		palette: [],
-		result: ""
-	},
-	watch: {
-		image: function () {
-			this.draw();
-		},
-		size: function () {
-			this.draw();
-		},
-		colors: function () {
-			this.draw();
-		},
-		path: function () {
-			this.load();
-		}
-	},
-	methods: {
-		draw: function () {
-			var img = this.image;
-			if (!img) return;
-			var sourceCanvas = document.getElementById('sourceCanvas');
-			var pixelatedCanvas = document.getElementById('pixelatedCanvas');
-			var resultCanvas = document.getElementById('resultCanvas');
-
-			// draw original large scale image
-			var sourceContext = sourceCanvas.getContext('2d');
-			sourceCanvas.width = pixelatedCanvas.width = 150;
-			sourceCanvas.height = pixelatedCanvas.height = img.height * sourceCanvas.width / img.width;
-			sourceContext.drawImage(img, 0, 0, sourceCanvas.width, sourceCanvas.height);
-
-			//draw result canvas
-			var resultContext = resultCanvas.getContext('2d');
-			var size = this.size,
-			    w = Math.floor(pixelatedCanvas.width / size),
-			    h = Math.floor(pixelatedCanvas.height / size);
-			resultCanvas.width = w;
-			resultCanvas.height = h;
-			resultContext.drawImage(img, 0, 0, w, h);
-			var sourceImageData = resultContext.getImageData(0, 0, w, h);
-			var opts = {
-				colors: this.colors, // desired palette size
-				method: 2, // histogram method, 2: min-population threshold within subregions; 1: global top-population
-				boxSize: [64, 64], // subregion dims (if method = 2)
-				boxPxls: 2, // min-population threshold (if method = 2)
-				initColors: 4096, // # of top-occurring colors  to start with (if method = 1)
-				minHueCols: 0, // # of colors per hue group to evaluate regardless of counts, to retain low-count hues
-				dithKern: null, // dithering kernel name, see available kernels in docs below
-				dithDelta: 0, // dithering threshhold (0-1) e.g: 0.05 will not dither colors with <= 5% difference
-				dithSerp: false, // enable serpentine pattern dithering
-				palette: [], // a predefined palette to start with in r,g,b tuple format: [[r,g,b],[r,g,b]...]
-				reIndex: false, // affects predefined palettes only. if true, allows compacting of sparsed palette once target palette size is reached. also enables palette sorting.
-				useCache: true, // enables caching for perf usually, but can reduce perf in some cases, like pre-def palettes
-				cacheFreq: 10, // min color occurance count needed to qualify for caching
-				colorDist: "euclidean" // method used to determine color distance, can also be "manhattan"
-			};
-			var q = new rgbquant__WEBPACK_IMPORTED_MODULE_2___default.a(opts);
-
-			// analyze histograms
-			q.sample(sourceImageData);
-
-			// build palette
-			var pal = q.palette();
-
-			// reduce images
-			var out = q.reduce(sourceImageData);
-			for (var i = 0; i < sourceImageData.data.length; i += 4) {
-				sourceImageData.data[i + 0] = out[i + 0];
-				sourceImageData.data[i + 1] = out[i + 1];
-				sourceImageData.data[i + 2] = out[i + 2];
-				sourceImageData.data[i + 3] = out[i + 3];
-			}
-			resultContext.putImageData(sourceImageData, 0, 0);
-
-			// draw large scale pixelated image
-			var pixelatedContext = pixelatedCanvas.getContext('2d');
-			pixelatedContext.msImageSmoothingEnabled = false;
-			pixelatedContext.mozImageSmoothingEnabled = false;
-			pixelatedContext.webkitImageSmoothingEnabled = false;
-			pixelatedContext.imageSmoothingEnabled = false;
-			pixelatedContext.drawImage(resultCanvas, 0, 0, w, h, 0, 0, pixelatedCanvas.width, pixelatedCanvas.height);
-
-			// render palette
-			var newpalette = [];
-			var newpaletteFreq = [];
-			for (var i = 0; i < pal.length; i += 4) {
-				let color = tinycolor2__WEBPACK_IMPORTED_MODULE_1___default()({ r: pal[i], g: pal[i + 1], b: pal[i + 2], a: pal[i + 3] / 255 });
-				newpalette.push(color.toHex8String());
-				newpaletteFreq.push(0);
-			}
-			this.palette = newpalette;
-
-			var resultImageObject = {
-				sort: 0,
-				width: w,
-				height: h,
-				palette: newpalette,
-				pixels: []
-			};
-			for (var i = 0; i < sourceImageData.data.length; i += 4) {
-				let found = false;
-				if (sourceImageData.data[i] === 0 && sourceImageData.data[i + 1] === 0 && sourceImageData.data[i + 2] === 0 && sourceImageData.data[i + 3] === 0) {
-					resultImageObject.pixels.push(0);
-					continue;
-				}
-				for (var c = 0; c < pal.length; c += 4) {
-					if (sourceImageData.data[i] === pal[c] && sourceImageData.data[i + 1] === pal[c + 1] && sourceImageData.data[i + 2] === pal[c + 2] && sourceImageData.data[i + 3] === pal[c + 3]) {
-						newpaletteFreq[Math.floor(c / 4) + 1]++;
-						resultImageObject.pixels.push(Math.floor(c / 4) + 1);
-						found = true;
-						break;
-					}
-				}
-				if (!found) {
-					console.log('what?');
-					console.log([sourceImageData.data[i], sourceImageData.data[i + 1], sourceImageData.data[i + 2], sourceImageData.data[i + 3]]);
-					break;
-				}
-			}
-			console.log(resultImageObject);
-			//console.log(sourceImageData);
-			this.result = JSON.stringify(resultImageObject);
-			console.log(this.result);
-		},
-		load: function () {
-			var T = this;
-			var img = new Image();
-			img.src = this.path;
-			img.onload = function () {
-				T.image = this;
-			};
-		}
-	},
-	created: function () {
-		this.load();
-	}
+  el: '#app',
+  template: '<Generator/>',
+  components: { Generator: _Generator_vue__WEBPACK_IMPORTED_MODULE_1__["default"] }
 });
+
+/***/ }),
+
+/***/ "./src/Generator.vue":
+/*!***************************!*\
+  !*** ./src/Generator.vue ***!
+  \***************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _Generator_vue_vue_type_template_id_2112c4ac__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Generator.vue?vue&type=template&id=2112c4ac */ "./src/Generator.vue?vue&type=template&id=2112c4ac");
+/* harmony import */ var _Generator_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Generator.vue?vue&type=script&lang=js */ "./src/Generator.vue?vue&type=script&lang=js");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+  _Generator_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"],
+  _Generator_vue_vue_type_template_id_2112c4ac__WEBPACK_IMPORTED_MODULE_0__["render"],
+  _Generator_vue_vue_type_template_id_2112c4ac__WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  null,
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "src/Generator.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./src/Generator.vue?vue&type=script&lang=js":
+/*!***************************************************!*\
+  !*** ./src/Generator.vue?vue&type=script&lang=js ***!
+  \***************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_node_modules_vue_loader_lib_index_js_vue_loader_options_Generator_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../node_modules/babel-loader/lib!../node_modules/vue-loader/lib??vue-loader-options!./Generator.vue?vue&type=script&lang=js */ "./node_modules/babel-loader/lib/index.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Generator.vue?vue&type=script&lang=js");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_node_modules_vue_loader_lib_index_js_vue_loader_options_Generator_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./src/Generator.vue?vue&type=template&id=2112c4ac":
+/*!*********************************************************!*\
+  !*** ./src/Generator.vue?vue&type=template&id=2112c4ac ***!
+  \*********************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Generator_vue_vue_type_template_id_2112c4ac__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../node_modules/vue-loader/lib??vue-loader-options!./Generator.vue?vue&type=template&id=2112c4ac */ "./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/Generator.vue?vue&type=template&id=2112c4ac");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Generator_vue_vue_type_template_id_2112c4ac__WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Generator_vue_vue_type_template_id_2112c4ac__WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
 
 /***/ })
 

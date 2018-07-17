@@ -28,36 +28,7 @@
 </head>
 <body style="padding: 0; margin: 4px">
 
-	<div id="app">
-        <div>
-            Path: <input v-model="path"/>
-        </div>
-        <div>
-            Colors: <input v-model="colors"/>
-        </div>
-        <div>
-            Size: <input v-model="size"/>
-        </div>
-		<div class="canvasContainer">
-			<div class="canvasTitle">Source</div>
-			<canvas id="sourceCanvas"></canvas>
-		</div>
-		<div class="canvasContainer">
-			<div class="canvasTitle">Pixelated</div>
-			<canvas id="pixelatedCanvas"></canvas>
-		</div>
-		<div>
-			<div class="canvasTitle">Palette</div>
-			<div v-for="color in palette" class="paletteColor" v-bind:title="color" v-bind:style="{backgroundColor:color}"></div>
-		</div>
-		<div class="canvasContainer">
-			<div class="canvasTitle">Result</div>
-			<canvas id="resultCanvas"></canvas>
-		</div>
-        <div>
-            <textarea v-model="result" rows="4" cols="40"></textarea>
-        </div>
-	</div>	
+	<div id="app"></div>	
 
 	<script type="text/javascript" src="libs-bundle.js"></script>
 	<script type="text/javascript" src="generator-bundle.js"></script>

@@ -9,6 +9,7 @@
 					<ImagesMenuItem
 						v-for="(image, index) in images"
 						v-bind:image="image"
+						v-bind:key="index"
 						v-on:select="select(image)"></ImagesMenuItem>
 	            </b-tab-item>
 
@@ -19,6 +20,7 @@
 					<ImagesMenuItem
 						v-for="(image, index) in startedImages"
 						v-bind:image="image"
+						v-bind:key="index"
 						v-on:select="select(image)"></ImagesMenuItem>
 	            </b-tab-item>
 
@@ -29,6 +31,7 @@
 					<ImagesMenuItem
 						v-for="(image, index) in completedImages"
 						v-bind:image="image"
+						v-bind:key="index"
 						v-on:select="select(image)"></ImagesMenuItem>
 	            </b-tab-item>
 
